@@ -1,0 +1,38 @@
+plugins:
+  - rubocop-md
+  - rubocop-prose
+  - rubocop-rake
+  - rubocop-rspec
+  - rubocop-spellcheck
+
+AllCops:
+  TargetRubyVersion: 3.3
+  NewCops: enable
+  Exclude:
+    - 'coverage/**/*'
+    - 'pkg/**/*'
+    - 'vendor/**/*'
+
+Markdown/HeadingCapitalization:
+  Enabled: true
+  Style: title_case
+
+Prose/MaxLength:
+  Max: false
+  Exclude:
+    - LICENSE.txt
+
+RSpec/Output:
+  Exclude:
+    # This installed-consumer executable reports success to its parent process.
+    - spec/fixtures/consumer/verify.rb
+
+Spellcheck:
+  DictionaryFiles:
+    en:
+      - gem:rubocop-spellcheck/data/en/en.dic
+      - '.spellcheck.txt'
+
+Spellcheck/Spelling:
+  Exclude:
+    - LICENSE.txt
