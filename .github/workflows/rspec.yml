@@ -105,7 +105,7 @@ jobs:
           retention-days: 30
 
   test:
-    name: Shard ${{ matrix.entry.shard }}
+    name: ${{ matrix.entry.shard }} of ${{ strategy.job-total }}
     needs: prepare
     runs-on: ubuntu-latest
     strategy:

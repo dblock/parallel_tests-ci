@@ -30,12 +30,15 @@ permissions:
 
 jobs:
   test:
+    name: Test
     uses: dblock/parallel_tests-ci/.github/workflows/rspec.yml@master
     with:
       shards: 8 # Number of test shards (1-256), capped at the number of matching spec files.
 ```
 
 Ruby comes from your version file by default. Each shard runs on its own Ubuntu runner. The first run uses file sizes; successful default-branch pushes establish timings automatically, and PRs, including forks, read that history without updating it. Use matching gem/workflow refs; these development refs should be pinned to matching releases when available.
+
+Worker jobs appear as `Test / 1 of 8`, `Test / 2 of 8`, and so on. GitHub supplies the caller job's name as the prefix; the total reflects the actual shard count, capped at the number of matching spec files.
 
 ## Configuration
 
