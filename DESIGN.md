@@ -57,3 +57,13 @@ PRs, including forks, read trusted default-branch history with a read-only `GITH
 The caller grants only `contents: read` and `actions: read`. Artifact uploads use GitHub's per-run artifact capability, not a PAT or write-scoped repository token. A failed shard has no successful result marker, uploads no measurement artifact, and cannot produce a baseline; its requested diagnostic artifacts are still retained. Local `RuntimeLog` and `Run` operations do not access GitHub; the `GitHub` module is internal workflow orchestration, not a public CLI.
 
 GitHub failure handling must preserve complete, nonoverlapping test execution. A history optimization cannot justify skipping tests, mixing snapshots, hiding test failures, or publishing partial measurements.
+
+## Artwork
+
+The logo pairs one solid blue cube with eight white, blue-outlined cubes, representing a suite divided into independent shards. [assets/logo.svg](assets/logo.svg) is the editable source: complete equal-sized cubes use isometric projection and back-to-front ordering so their volume and overlap remain consistent.
+
+The original project artwork was developed through AI-assisted concept previews followed by precise SVG construction; no third-party artwork was incorporated. It is covered by the project's MIT license. Keep the SVG and its [PNG rendering](assets/logo.png) together. With librsvg installed, regenerate the PNG from the repository root:
+
+```sh
+rsvg-convert --output assets/logo.png assets/logo.svg
+```
