@@ -7,4 +7,5 @@
 - [#5](https://github.com/dblock/parallel_tests-ci/pull/5): Name shared-workflow workers by position and actual total beneath the caller job name - [@dblock](https://github.com/dblock).
 - [#6](https://github.com/dblock/parallel_tests-ci/pull/6): Support worker-name templates with namespaced shard number, count, and plan grouping placeholders while preserving default labels - [@dblock](https://github.com/dblock).
 - [#7](https://github.com/dblock/parallel_tests-ci/pull/7): Consolidate workflow inputs into one JSON environment value and pass configuration explicitly through the Ruby adapter - [@dblock](https://github.com/dblock).
+- [#8](https://github.com/dblock/parallel_tests-ci/pull/8): Configure runners, job timeouts, worker concurrency and failure cancellation, gem caching, checkout depth, and artifact retention while preserving defaults - [@dblock](https://github.com/dblock).
 - Your contribution here.

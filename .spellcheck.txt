@@ -46,6 +46,7 @@ runtimes
 tmp
 Multiline
 lockfile
+macOS
 namespaced
 nonnegative
 upstream's
@@ -79,6 +80,7 @@ sharding
 stdlib
 subprocesses
 txt
+uncached
 untrusted
 workflow_call
 worktree

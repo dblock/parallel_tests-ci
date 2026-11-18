@@ -34,6 +34,19 @@ After every expected shard succeeds, collection verifies a plan fingerprint, com
 
 See [Configuration](README.md#configuration) for inputs and defaults. An empty `ruby-version` uses `.ruby-version`, `.tool-versions`, or `mise.toml`; `pattern` supports Ruby glob braces.
 
+### Runners and Execution
+
+| Setting           | Scope                                                                                                                                                                  |
+| ---               | ---                                                                                                                                                                    |
+| `runs-on`         | All jobs use the same runner selection: a label such as `macos-latest`, or a JSON array such as `'["self-hosted","linux","x64"]'`.                                     |
+| `timeout-minutes` | Positive integer limit for each job, including checkout and setup; defaults to GitHub's 360 minutes. Runner execution limits still apply.                              |
+| `max-parallel`    | Concurrent workers, not total shards; defaults to 256, the maximum matrix size. Available runner capacity can reduce concurrency further.                              |
+| `fail-fast`       | Defaults to `false` to retain independent worker results; `true` cancels other workers after a failure. Canceled or failed workers cannot produce a complete baseline. |
+| `fetch-depth`     | Checkout depth in all jobs; `1` is shallow, `0` fetches all history and tags. Credentials are never persisted.                                                         |
+| `bundler-cache`   | All jobs use Ruby's automatic gem cache by default; `false` disables the cache and runs `bundle install` explicitly.                                                   |
+
+Linux and macOS runners are supported; Windows is not supported. Custom runners must provide Bash, Git, and the GitHub CLI and meet the pinned actions' runtime and `ruby/setup-ruby` requirements. Caller concurrency policies remain in the caller workflow; working directories, containers, and services are not workflow inputs.
+
 ### Worker Templates
 
 | Variable          | Value                                                    |
@@ -71,13 +84,13 @@ Specs are discovered before application setup; setup must not add, remove, or re
 
 ### Artifacts and Retries
 
-| Item            | Rule                                                                                             |
-| ---             | ---                                                                                              |
-| Retention       | Plans, measurements, and test artifacts: 30 days; baselines: 90 days, within repository limits.  |
-| Shared plan     | Named by preparation attempt; dependent retries reuse that exact snapshot.                       |
-| Measurements    | Identify shard, attempt, and plan/history fingerprint; newest successful attempt wins per shard. |
-| Invalid reports | Other plans cannot fill missing shards; duplicate shard/attempt reports fail.                    |
-| Full rerun      | Creates a new plan artifact without overwriting the old snapshot.                                |
+| Item            | Rule                                                                                                                                                                                               |
+| ---             | ---                                                                                                                                                                                                |
+| Retention       | `artifact-retention-days`: plans, measurements, and test artifacts (default 30); `baseline-retention-days`: trusted history (default 90). Use `0` for repository default; repository limits apply. |
+| Shared plan     | Named by preparation attempt; dependent retries reuse that exact snapshot.                                                                                                                         |
+| Measurements    | Identify shard, attempt, and plan/history fingerprint; newest successful attempt wins per shard.                                                                                                   |
+| Invalid reports | Other plans cannot fill missing shards; duplicate shard/attempt reports fail.                                                                                                                      |
+| Full rerun      | Creates a new plan artifact without overwriting the old snapshot.                                                                                                                                  |
 
 ## Trust and Configuration
 
