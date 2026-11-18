@@ -2,7 +2,7 @@
 
 ## Purpose and Status
 
-`parallel_tests-ci` provides reusable CI integration around [parallel_tests](https://github.com/grosser/parallel_tests). The current repository is a gem scaffold with development checks; the timing-history implementation and consumer workflow are not available yet. The following sections define the agreed first-version design, not an implemented API.
+`parallel_tests-ci` provides reusable RSpec/GitHub Actions integration around [parallel_tests](https://github.com/grosser/parallel_tests). The gem handles report validation and the shared run plan; `.github/workflows/rspec.yml` owns preparation, execution, artifact transport, and baseline publication. Version 0.1.0 is not yet published.
 
 Users add the gem and one shared GitHub Actions workflow to their existing project. No manual command, initial measurement run, committed timing report, personal token, or extra service is required. RSpec and GitHub Actions are the only first-version integrations. There is no planned GitLab implementation, hosted service, public CLI, or generic provider framework.
 
@@ -22,18 +22,38 @@ These are precedents, not functionality to recreate indiscriminately. The projec
 
 ## One Shared Workflow
 
-A preparation job selects a retained timing artifact from a successful push to the caller's trusted default branch. It validates the report and chooses one grouping mode for the whole run. Missing, expired, malformed, or insufficient history selects file-size grouping. The first successful default-branch run therefore establishes history automatically.
+A preparation job uses the runner's GitHub CLI to inspect the caller workflow's latest 20 successful default-branch push runs. It skips untrusted runs and expired/missing artifacts and selects one artifact ID. Official artifact actions perform downloads and uploads. API or download failure, missing/expired history, malformed reports, or history covering fewer than half the selected files chooses file-size grouping centrally. Stale paths are discarded. The first successful default-branch run establishes history automatically.
 
-The same preparation job generates a JSON array of explicit shard entries from the caller's requested count. A dependent matrix expands that array with `fromJSON` under `matrix.entry`, following [Generating a Task Matrix by Looping over Repo Files with GitHub Actions](https://code.dblock.org/2021/09/03/generating-task-matrix-by-looping-over-repo-files-with-github-actions.html), using `$GITHUB_OUTPUT` instead of the older output syntax. Shard names and aggregation use that same count. History remains per file, so changing the worker count does not require regenerating it.
+The same preparation job selects files with Ruby's standard glob implementation and generates a JSON array of explicit shard entries, capped at the selected file count. Counts must be integers from 1 through 256; an empty selection fails clearly. A dependent matrix expands that array with `fromJSON` under `matrix.entry`, following [Generating a Task Matrix by Looping over Repo Files with GitHub Actions](https://code.dblock.org/2021/09/03/generating-task-matrix-by-looping-over-repo-files-with-github-actions.html), using `$GITHUB_OUTPUT` instead of the older output syntax. History remains per file, so changing the worker count does not require regenerating it.
 
-Each worker receives the same immutable history snapshot and grouping mode, performs the caller's setup, and runs its assigned group with the existing RSpec runtime formatter enabled. Historical input is never overwritten by the current shard's output. The shared workflow handles measurement artifacts and preserves configured test and coverage artifacts for caller-owned reporting.
+Each worker downloads the same immutable artifact containing `plan.json` and a separate historical `runtime.log`. The plan records selected files/sizes, grouping mode, count, and RSpec arguments. After caller setup, the worker verifies the selected file set and sizes have not changed, then invokes the documented `parallel_rspec` CLI with `--only-group`, `--group-by`, `--runtime-log`, and the existing runtime formatter. New files use upstream's average-duration estimation. Historical input is never overwritten by current output; no Ruby or shell code comes from historical artifacts.
 
-After every expected shard succeeds on the trusted default branch, a final job combines their reports into the next baseline. Duplicate measurements and incomplete shard sets must not silently become authoritative history. Optional automatic shard sizing from a target duration is outside the first version.
+After every expected shard succeeds, collection verifies a plan fingerprint, complete shard membership, nonnegative finite durations, selected paths, and no duplicate measurements. An empty successful shard is valid; at least one timing must exist overall. Files without timed example groups remain unknown rather than being assigned fabricated zero durations. Collection runs on PRs too, but only default-branch pushes upload a baseline, and discovery only trusts it once the entire caller workflow succeeds. Optional automatic shard sizing from a target duration is outside the first version.
+
+## Workflow Inputs
+
+| Input             | Default             | Behavior                                                                                                      |
+| ---               | ---                 | ---                                                                                                           |
+| `ruby-version`    | Empty               | Use the caller's `.ruby-version`, `.tool-versions`, or `mise.toml`; Ruby must satisfy the gem's minimum.      |
+| `shards`          | `4`                 | Maximum independent Ubuntu runners; capped at file count.                                                     |
+| `pattern`         | `spec/**/*_spec.rb` | Repository-relative Ruby glob; braces support multiple selections.                                            |
+| `rspec-options`   | `[]`                | JSON array of RSpec argument strings, not shell code.                                                         |
+| `environment`     | `{}`                | JSON environment object for all jobs; use only non-secret values here.                                        |
+| `before-bundle`   | Empty               | Shell setup before Ruby/gem installation in preparation, each shard, and collection.                          |
+| `setup`           | Empty               | Shell application setup after gem installation in each shard only.                                            |
+| `artifacts`       | Empty               | Multiline paths for per-shard coverage, logs, or screenshots; hidden files are retained, even after failures. |
+| `artifact-prefix` | `parallel-tests-ci` | Letters/numbers/underscores/hyphens; use distinct prefixes for multiple calls in one caller workflow.         |
+
+An optional `environment` workflow secret supplies a complete JSON environment object instead of the non-secret input. Pass it under the caller job's `secrets` mapping; it replaces, rather than merges with, the input. Secrets stay in job environments, not the shared plan. Do not put secrets in RSpec argument strings or upload paths containing credentials.
+
+Preparation discovers committed specs before application setup. Setup must not add, remove, or change the sizes of selected specs. Use `before-bundle` for native build dependencies and `setup` for database/service preparation; the project does not provision Rails, MongoDB, or Postgres itself. Setup scripts are caller-owned code, not commands taken from artifacts.
+
+Plans, measurements, and optional test artifacts are retained for 30 days; baselines for 90 days, subject to repository retention limits. Plan names include the preparation attempt; dependent jobs use that exact output even when only failed jobs are rerun. Measurements include shard/attempt numbers and a fingerprint of both plan and history. Collection selects the newest successful attempt for each shard belonging to the current plan; older plans cannot fill missing shards. Duplicate reports for one shard/attempt fail. A full rerun creates a new plan artifact instead of overwriting an immutable snapshot.
 
 ## Trust and Configuration
 
 PRs, including forks, read trusted default-branch history with a read-only `GITHUB_TOKEN` and never provide future baselines. Normal fork workflow approval still applies. Do not use `pull_request_target`, long-lived tokens, untrusted artifact contents as executable code, or permission escalation.
 
-The consumer configures Ruby, the shard count, application setup, test environment, and optional RSpec arguments. History preparation, matrix creation, collection, and publication stay internal to one reusable workflow. Application setup remains caller-owned; the project does not introduce database-specific dependencies or take over application coverage reporting.
+The caller grants only `contents: read` and `actions: read`. Artifact uploads use GitHub's per-run artifact capability, not a PAT or write-scoped repository token. A failed shard has no successful result marker, uploads no measurement artifact, and cannot produce a baseline; its requested diagnostic artifacts are still retained. Local `RuntimeLog` and `Run` operations do not access GitHub; the `GitHub` module is internal workflow orchestration, not a public CLI.
 
 GitHub failure handling must preserve complete, nonoverlapping test execution. A history optimization cannot justify skipping tests, mixing snapshots, hiding test failures, or publishing partial measurements.

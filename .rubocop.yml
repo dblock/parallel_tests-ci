@@ -27,6 +27,19 @@ RSpec/Output:
     # This installed-consumer executable reports success to its parent process.
     - spec/fixtures/consumer/verify.rb
 
+RSpec:
+  Exclude:
+    # These synthetic suites run only in subprocesses, not in the unit spec runner.
+    - 'spec/fixtures/suite/*.rb'
+
+RSpec/ExampleLength:
+  Max: 10
+
+Metrics/ClassLength:
+  Exclude:
+    # Keep one persisted run lifecycle together instead of adding delegation-only classes.
+    - lib/parallel_tests/ci/run.rb
+
 Spellcheck:
   DictionaryFiles:
     en:

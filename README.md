@@ -4,15 +4,40 @@
 
 Shared GitHub Actions integration for timing-based CI sharding with [parallel_tests](https://github.com/grosser/parallel_tests).
 
-**Status:** Scaffold only. Timing-history management and the consumer reusable workflow are not implemented or released.
+Automatically restore timing history, generate a shard matrix, measure each run, and publish the next trusted baseline. No timing commands, report files, tokens, or hosted service to manage.
 
 ## Installation
 
-The gem has not been published. For contributor setup, see [Contributing](CONTRIBUTING.md#setup-and-validation).
+For an existing RSpec project using Ruby 3.3 or newer, add the gem to your Gemfile and update your lockfile normally. This version is not yet published to RubyGems; use the development source:
+
+```ruby
+gem 'parallel_tests-ci', github: 'dblock/parallel_tests-ci', branch: 'master', require: false
+```
 
 ## Usage
 
-There is no consumer integration yet. The intended experience is to add the gem and reference one shared GitHub workflow, without manually running commands or managing timing logs. See [Design](DESIGN.md) for the agreed first-version scope.
+Add the shared workflow to your CI:
+
+```yaml
+name: Test
+on: [push, pull_request]
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  test:
+    uses: dblock/parallel_tests-ci/.github/workflows/rspec.yml@master
+    with:
+      shards: 8 # Number of test shards (1-256), capped at the number of matching spec files.
+```
+
+Ruby comes from your version file by default. Each shard runs on its own Ubuntu runner. The first run uses file sizes; successful default-branch pushes establish timings automatically, and PRs, including forks, read that history without updating it. Use matching gem/workflow refs; these development refs should be pinned to matching releases when available.
+
+## Configuration
+
+Set `ruby-version`, a spec-file `pattern`, JSON `rspec-options` and `environment`, application `setup`, or additional `artifacts` such as coverage and failure screenshots. The workflow retains shard artifacts without taking over your coverage reporting. See [Workflow Inputs](DESIGN.md#workflow-inputs) for defaults, setup ordering, secret environments, and retry behavior.
 
 ## Contributing
 
