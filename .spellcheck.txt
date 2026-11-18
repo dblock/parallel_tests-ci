@@ -14,6 +14,7 @@ JSON
 JUnit
 LCOV
 OIDC
+PNG
 PR's
 PRs
 Postgres
@@ -25,6 +26,7 @@ RuboCop
 RubyGems
 SHA
 SHAs
+SVG
 SimpleCov
 StrongMind's
 YAML
@@ -60,6 +62,7 @@ idempotent
 integrations
 invariants
 lib
+librsvg
 lifecycle
 md
 nonoverlapping
@@ -67,6 +70,7 @@ parallel_tests
 parallel_tests-ci
 rebase
 rb
+rsvg
 rubocop
 rubygems
 sharding

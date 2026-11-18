@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="135 190 760 760">
+  <title>Parallel Tests CI</title>
+  <desc>A solid blue cube in front of eight white cubes outlined in the same blue, painted back to front.</desc>
+  <defs>
+    <linearGradient id="indigo-top" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#3b4795"/>
+      <stop offset="1" stop-color="#364086"/>
+    </linearGradient>
+    <linearGradient id="indigo-left" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#4d61cc"/>
+      <stop offset="1" stop-color="#4353b9"/>
+    </linearGradient>
+    <linearGradient id="indigo-right" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#3b4795"/>
+      <stop offset="1" stop-color="#333d75"/>
+    </linearGradient>
+    <g id="cubelet">
+      <path d="M -98.726896 -57 L 0 0 L 0 114 L -98.726896 57 Z" fill="#ffffff" stroke="#4d61cc" stroke-width="4" stroke-linejoin="round"/>
+      <path d="M 0 0 L 98.726896 -57 L 98.726896 57 L 0 114 Z" fill="#ffffff" stroke="#4d61cc" stroke-width="4" stroke-linejoin="round"/>
+      <path d="M 0 -114 L 98.726896 -57 L 0 0 L -98.726896 -57 Z" fill="#ffffff" stroke="#4d61cc" stroke-width="4" stroke-linejoin="round"/>
+    </g>
+  </defs>
+  <path d="M 135 190 H 895 V 950 H 135 Z" fill="#ffffff"/>
+  <g id="split-cube" data-edge="114" data-gap="12">
+    <use href="#cubelet" data-origin="0 -252 0" transform="translate(618.238402 494)"/>
+    <use href="#cubelet" data-origin="126 -252 0" transform="translate(727.357603 557)"/>
+    <use href="#cubelet" data-origin="0 -126 0" transform="translate(509.119201 557)"/>
+    <use href="#cubelet" data-origin="0 -252 126" transform="translate(618.238402 368)"/>
+    <use href="#cubelet" data-origin="126 -126 0" transform="translate(618.238402 620)"/>
+    <use href="#cubelet" data-origin="126 -252 126" transform="translate(727.357603 431)"/>
+    <use href="#cubelet" data-origin="0 -126 126" transform="translate(509.119201 431)"/>
+    <use href="#cubelet" data-origin="126 -126 126" transform="translate(618.238402 494)"/>
+  </g>
+  <g id="solid-front-cube">
+    <path d="M 192.153903 500 L 400 620 L 400 860 L 192.153903 740 Z" fill="url(#indigo-left)"/>
+    <path d="M 400 620 L 607.846097 500 L 607.846097 740 L 400 860 Z" fill="url(#indigo-right)"/>
+    <path d="M 400 380 L 607.846097 500 L 400 620 L 192.153903 500 Z" fill="url(#indigo-top)"/>
+  </g>
+</svg>
