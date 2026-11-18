@@ -17,8 +17,7 @@ module ParallelTests
         JSON.parse(File.read(ENV.fetch('GITHUB_EVENT_PATH')))
       end
 
-      def prefix
-        value = ENV.fetch('PTCI_PREFIX')
+      def prefix(value)
         unless value.match?(/\A[a-zA-Z0-9][a-zA-Z0-9_-]*\z/)
           raise ArgumentError, 'Artifact prefix must contain only letters, numbers, underscores, and hyphens'
         end
@@ -35,10 +34,11 @@ module ParallelTests
         JSON.parse(output)
       end
 
-      def find_history
+      def find_history(inputs:)
         repository = ENV.fetch('GITHUB_REPOSITORY')
+        artifact_prefix = prefix(inputs.fetch('artifact-prefix'))
         successful_runs(repository).each do |run|
-          artifact = history_artifact(repository, run.fetch('id'))
+          artifact = history_artifact(repository, run.fetch('id'), artifact_prefix: artifact_prefix)
           next unless artifact
 
           outputs(history_run: run.fetch('id'), history_artifact: artifact.fetch('id'))
@@ -56,10 +56,10 @@ module ParallelTests
           .fetch('workflow_runs').select { |run| trusted_run?(run, repository) }
       end
 
-      def history_artifact(repository, id)
+      def history_artifact(repository, id, artifact_prefix:)
         pages = api("repos/#{repository}/actions/runs/#{id}/artifacts?per_page=100", paginate: true)
         pages.flat_map { |page| page.fetch('artifacts') }.find do |entry|
-          entry.fetch('name') == "#{prefix}-runtimes" && !entry.fetch('expired')
+          entry.fetch('name') == "#{artifact_prefix}-runtimes" && !entry.fetch('expired')
         end
       end
 
@@ -69,17 +69,17 @@ module ParallelTests
           run.dig('head_repository', 'full_name') == repository
       end
 
-      def prepare
+      def prepare(inputs:)
         run = Run.prepare(directory: "#{DIRECTORY}/plan", history: "#{DIRECTORY}/history/runtime.log",
-                          pattern: ENV.fetch('PTCI_PATTERN'), shards: ENV.fetch('PTCI_SHARDS'),
-                          rspec_options: JSON.parse(ENV.fetch('PTCI_RSPEC_OPTIONS')))
-        outputs(matrix: JSON.generate(worker_matrix(run)),
-                artifact: "#{prefix}-plan-#{ENV.fetch('GITHUB_RUN_ATTEMPT')}")
+                          pattern: inputs.fetch('pattern'), shards: inputs.fetch('shards'),
+                          rspec_options: JSON.parse(inputs.fetch('rspec-options')))
+        outputs(matrix: JSON.generate(worker_matrix(run, inputs: inputs)),
+                artifact: "#{prefix(inputs.fetch('artifact-prefix'))}-plan-#{ENV.fetch('GITHUB_RUN_ATTEMPT')}")
         puts "Prepared #{run.plan.fetch('shards')} shards using #{run.plan.fetch('group_by')} grouping."
       end
 
-      def worker_matrix(run)
-        template = ENV.fetch('PTCI_WORKER_NAME', '')
+      def worker_matrix(run, inputs:)
+        template = inputs.fetch('worker-name', '')
         template = '{shard.number} of {shard.count}' if template.empty?
         values = { 'shard.count' => run.plan.fetch('shards').to_s, 'plan.group_by' => run.plan.fetch('group_by') }
         run.matrix.map do |entry|
@@ -96,11 +96,10 @@ module ParallelTests
         end
       end
 
-      def run
-        shard = ENV.fetch('PTCI_SHARD')
+      def run(inputs:, shard:)
         attempt = ENV.fetch('GITHUB_RUN_ATTEMPT')
         code = Run.new("#{DIRECTORY}/plan").run(shard: shard, attempt: attempt, directory: "#{DIRECTORY}/result")
-        outputs(artifact: "#{prefix}-shard-#{shard}-#{attempt}") if code.zero?
+        outputs(artifact: "#{prefix(inputs.fetch('artifact-prefix'))}-shard-#{shard}-#{attempt}") if code.zero?
         exit(code)
       end
 

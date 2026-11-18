@@ -6,4 +6,5 @@
 - [#4](https://github.com/dblock/parallel_tests-ci/pull/4): Add the cube logo with editable SVG artwork and a PNG rendering - [@dblock](https://github.com/dblock).
 - [#5](https://github.com/dblock/parallel_tests-ci/pull/5): Name shared-workflow workers by position and actual total beneath the caller job name - [@dblock](https://github.com/dblock).
 - [#6](https://github.com/dblock/parallel_tests-ci/pull/6): Support worker-name templates with namespaced shard number, count, and plan grouping placeholders while preserving default labels - [@dblock](https://github.com/dblock).
+- [#7](https://github.com/dblock/parallel_tests-ci/pull/7): Consolidate workflow inputs into one JSON environment value and pass configuration explicitly through the Ruby adapter - [@dblock](https://github.com/dblock).
 - Your contribution here.
