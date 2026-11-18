@@ -42,7 +42,22 @@ Worker jobs appear as `Test / 1 of 8`, `Test / 2 of 8`, and so on. GitHub suppli
 
 ## Configuration
 
-Set `ruby-version`, a spec-file `pattern`, JSON `rspec-options` and `environment`, application `setup`, or additional `artifacts` such as coverage and failure screenshots. The workflow retains shard artifacts without taking over your coverage reporting. See [Workflow Inputs](DESIGN.md#workflow-inputs) for defaults, setup ordering, secret environments, and retry behavior.
+| Input             | Default                           | Purpose                                                                                     |
+| ---               | ---                               | ---                                                                                         |
+| `ruby-version`    | Empty                             | Use the caller's version file unless overridden.                                            |
+| `shards`          | `4`                               | Workers (1-256), capped at matching file count.                                             |
+| `worker-name`     | `{shard.number} of {shard.count}` | Worker label template; empty uses the default.                                              |
+| `pattern`         | `spec/**/*_spec.rb`               | Spec-file glob, relative to the repository.                                                 |
+| `rspec-options`   | `[]`                              | JSON array of RSpec arguments.                                                              |
+| `environment`     | `{}`                              | JSON object of non-secret environment variables.                                            |
+| `before-bundle`   | Empty                             | Shell setup before gems in every job.                                                       |
+| `setup`           | Empty                             | Shell setup before specs in each worker.                                                    |
+| `artifacts`       | Empty                             | Extra files to retain, including hidden files and failure diagnostics.                      |
+| `artifact-prefix` | `parallel-tests-ci`               | Unique artifact prefix for multiple calls; letters, numbers, underscores, and hyphens only. |
+
+For example, `worker-name: 'RSpec {shard.number}/{shard.count} ({plan.group_by})'` produces `Test / RSpec 1/8 (runtime)`.
+
+See [Workflow Inputs](DESIGN.md#workflow-inputs) for template variables, secret environments, setup rules, and retries.
 
 ## Contributing
 

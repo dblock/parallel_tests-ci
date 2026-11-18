@@ -23,6 +23,21 @@ jobs:
       environment: '{"PTCI_OBSERVED":"tmp/parallel_tests_ci/observed.txt"}'
       artifacts: tmp/parallel_tests_ci/observed.txt
 
+  integration_templates:
+    name: Exercise Template Variables
+    permissions:
+      contents: read
+      actions: read
+    uses: ./.github/workflows/rspec.yml
+    with:
+      ruby-version: '4.0'
+      shards: 8
+      worker-name: 'RSpec {shard.number}/{shard.count} ({plan.group_by})'
+      pattern: spec/fixtures/suite/*.rb
+      artifact-prefix: integration-templates
+      environment: '{"PTCI_OBSERVED":"tmp/parallel_tests_ci/observed.txt"}'
+      artifacts: tmp/parallel_tests_ci/observed.txt
+
   test:
     name: Test Ruby ${{ matrix.entry.ruby }} on ${{ matrix.entry.os }}
     runs-on: ${{ matrix.entry.os }}

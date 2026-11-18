@@ -11,6 +11,10 @@ on:
         description: Number of test shards (1-256), capped at the number of matching spec files.
         type: number
         default: 4
+      worker-name:
+        description: 'Worker display-name template with {shard.number}, {shard.count}, and {plan.group_by} placeholders.'
+        type: string
+        default: '{shard.number} of {shard.count}'
       pattern:
         description: Repository-relative glob selecting spec files.
         type: string
@@ -95,6 +99,7 @@ jobs:
           PTCI_SHARDS: ${{ inputs.shards }}
           PTCI_PATTERN: ${{ inputs.pattern }}
           PTCI_RSPEC_OPTIONS: ${{ inputs.rspec-options }}
+          PTCI_WORKER_NAME: ${{ inputs.worker-name }}
         run: bundle exec ruby -rparallel_tests/ci/github -e 'ParallelTests::CI::GitHub.prepare'
       - name: Share Immutable Plan
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -105,7 +110,7 @@ jobs:
           retention-days: 30
 
   test:
-    name: ${{ matrix.entry.shard }} of ${{ strategy.job-total }}
+    name: ${{ matrix.entry.name }}
     needs: prepare
     runs-on: ubuntu-latest
     strategy:

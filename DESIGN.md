@@ -32,23 +32,45 @@ After every expected shard succeeds, collection verifies a plan fingerprint, com
 
 ## Workflow Inputs
 
-| Input             | Default             | Behavior                                                                                                      |
-| ---               | ---                 | ---                                                                                                           |
-| `ruby-version`    | Empty               | Use the caller's `.ruby-version`, `.tool-versions`, or `mise.toml`; Ruby must satisfy the gem's minimum.      |
-| `shards`          | `4`                 | Maximum independent Ubuntu runners; capped at file count.                                                     |
-| `pattern`         | `spec/**/*_spec.rb` | Repository-relative Ruby glob; braces support multiple selections.                                            |
-| `rspec-options`   | `[]`                | JSON array of RSpec argument strings, not shell code.                                                         |
-| `environment`     | `{}`                | JSON environment object for all jobs; use only non-secret values here.                                        |
-| `before-bundle`   | Empty               | Shell setup before Ruby/gem installation in preparation, each shard, and collection.                          |
-| `setup`           | Empty               | Shell application setup after gem installation in each shard only.                                            |
-| `artifacts`       | Empty               | Multiline paths for per-shard coverage, logs, or screenshots; hidden files are retained, even after failures. |
-| `artifact-prefix` | `parallel-tests-ci` | Letters/numbers/underscores/hyphens; use distinct prefixes for multiple calls in one caller workflow.         |
+See [Configuration](README.md#configuration) for inputs and defaults. An empty `ruby-version` uses `.ruby-version`, `.tool-versions`, or `mise.toml`; `pattern` supports Ruby glob braces.
 
-An optional `environment` workflow secret supplies a complete JSON environment object instead of the non-secret input. Pass it under the caller job's `secrets` mapping; it replaces, rather than merges with, the input. Secrets stay in job environments, not the shared plan. Do not put secrets in RSpec argument strings or upload paths containing credentials.
+### Worker Templates
 
-Preparation discovers committed specs before application setup. Setup must not add, remove, or change the sizes of selected specs. Use `before-bundle` for native build dependencies and `setup` for database/service preparation; the project does not provision Rails, MongoDB, or Postgres itself. Setup scripts are caller-owned code, not commands taken from artifacts.
+| Variable          | Value                                                    |
+| ---               | ---                                                      |
+| `{shard.number}`  | One-based worker number.                                 |
+| `{shard.count}`   | Actual worker count after file-count capping.            |
+| `{plan.group_by}` | `runtime` or `filesize`, as selected during preparation. |
 
-Plans, measurements, and optional test artifacts are retained for 30 days; baselines for 90 days, subject to repository retention limits. Plan names include the preparation attempt; dependent jobs use that exact output even when only failed jobs are rerun. Measurements include shard/attempt numbers and a fingerprint of both plan and history. Collection selects the newest successful attempt for each shard belonging to the current plan; older plans cannot fill missing shards. Duplicate reports for one shard/attempt fail. A full rerun creates a new plan artifact instead of overwriting an immutable snapshot.
+| Rule          | Behavior                                                                                                            |
+| ---           | ---                                                                                                                 |
+| Parent prefix | GitHub adds the caller job's name: `Test / 1 of 8`.                                                                 |
+| Evaluation    | Caller expressions resolve first; preparation substitutes variables literally without recursion or code evaluation. |
+| Validation    | Braces are reserved; unknown variables, empty placeholders, nested braces, and unmatched braces fail preparation.   |
+| Isolation     | Names live in `matrix.entry.name`, outside the timing plan; IDs, assignments, artifacts, and retries are unchanged. |
+
+The caller cannot reference the internal worker matrix directly. Keep gem/workflow refs matched; the gem generates the names consumed by the workflow.
+
+### Environments and Setup
+
+| Setting               | Scope                                                                                     |
+| ---                   | ---                                                                                       |
+| `environment` input   | Non-secret variables in all jobs.                                                         |
+| `secrets.environment` | Complete JSON object replacing, not merging with, the input. Never persisted in the plan. |
+| `before-bundle`       | Native dependencies before Ruby/gems in preparation, workers, and collection.             |
+| `setup`               | Application services after gems in workers only; no built-in database provisioning.       |
+
+Specs are discovered before application setup; setup must not add, remove, or resize them. Setup scripts are caller-owned, never artifact-supplied. Keep secrets out of RSpec arguments and uploaded files.
+
+### Artifacts and Retries
+
+| Item            | Rule                                                                                             |
+| ---             | ---                                                                                              |
+| Retention       | Plans, measurements, and test artifacts: 30 days; baselines: 90 days, within repository limits.  |
+| Shared plan     | Named by preparation attempt; dependent retries reuse that exact snapshot.                       |
+| Measurements    | Identify shard, attempt, and plan/history fingerprint; newest successful attempt wins per shard. |
+| Invalid reports | Other plans cannot fill missing shards; duplicate shard/attempt reports fail.                    |
+| Full rerun      | Creates a new plan artifact without overwriting the old snapshot.                                |
 
 ## Trust and Configuration
 
