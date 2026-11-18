@@ -2,10 +2,11 @@
 
 ## 0.1.0 (Next)
 
-- [#2](https://github.com/dblock/parallel_tests-ci/pull/2): Add automatic RSpec timing history, dynamic GitHub Actions shards, and trusted baseline publication around parallel_tests - [@dblock](https://github.com/dblock).
-- [#4](https://github.com/dblock/parallel_tests-ci/pull/4): Add the cube logo with editable SVG artwork and a PNG rendering - [@dblock](https://github.com/dblock).
-- [#5](https://github.com/dblock/parallel_tests-ci/pull/5): Name shared-workflow workers by position and actual total beneath the caller job name - [@dblock](https://github.com/dblock).
-- [#6](https://github.com/dblock/parallel_tests-ci/pull/6): Support worker-name templates with namespaced shard number, count, and plan grouping placeholders while preserving default labels - [@dblock](https://github.com/dblock).
-- [#7](https://github.com/dblock/parallel_tests-ci/pull/7): Consolidate workflow inputs into one JSON environment value and pass configuration explicitly through the Ruby adapter - [@dblock](https://github.com/dblock).
-- [#8](https://github.com/dblock/parallel_tests-ci/pull/8): Configure runners, job timeouts, worker concurrency and failure cancellation, gem caching, checkout depth, and artifact retention while preserving defaults - [@dblock](https://github.com/dblock).
+- [#2](https://github.com/dblock/parallel_tests-ci/pull/2): Add runtime-balanced RSpec shards and automatic trusted timing history - [@dblock](https://github.com/dblock).
+- [#4](https://github.com/dblock/parallel_tests-ci/pull/4): Add an editable cube logo and PNG - [@dblock](https://github.com/dblock).
+- [#5](https://github.com/dblock/parallel_tests-ci/pull/5): Label workers with position and actual total - [@dblock](https://github.com/dblock).
+- [#6](https://github.com/dblock/parallel_tests-ci/pull/6): Add namespaced worker-name templates - [@dblock](https://github.com/dblock).
+- [#7](https://github.com/dblock/parallel_tests-ci/pull/7): Pass workflow inputs to Ruby as JSON - [@dblock](https://github.com/dblock).
+- [#8](https://github.com/dblock/parallel_tests-ci/pull/8): Configure runners, execution, caching, checkout, and artifact retention - [@dblock](https://github.com/dblock).
+- [#10](https://github.com/dblock/parallel_tests-ci/pull/10): Document versioned 0.1.0 usage and shorten all guides - [@dblock](https://github.com/dblock).
 - Your contribution here.

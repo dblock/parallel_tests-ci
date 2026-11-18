@@ -4,21 +4,19 @@
 
 [![Test](https://github.com/dblock/parallel_tests-ci/actions/workflows/test.yml/badge.svg)](https://github.com/dblock/parallel_tests-ci/actions/workflows/test.yml) [![Lint](https://github.com/dblock/parallel_tests-ci/actions/workflows/lint.yml/badge.svg)](https://github.com/dblock/parallel_tests-ci/actions/workflows/lint.yml) [![Package](https://github.com/dblock/parallel_tests-ci/actions/workflows/package.yml/badge.svg)](https://github.com/dblock/parallel_tests-ci/actions/workflows/package.yml) [![Coverage](https://coveralls.io/repos/github/dblock/parallel_tests-ci/badge.svg?branch=master)](https://coveralls.io/github/dblock/parallel_tests-ci?branch=master)
 
-Shared GitHub Actions integration for timing-based CI sharding with [parallel_tests](https://github.com/grosser/parallel_tests).
-
-Automatically restore timing history, generate a shard matrix, measure each run, and publish the next trusted baseline. No timing commands, report files, tokens, or hosted service to manage.
+Runtime-balanced RSpec shards for GitHub Actions, powered by [parallel_tests](https://github.com/grosser/parallel_tests). Timing history is collected and reused automatically.
 
 ## Installation
 
-For an existing RSpec project using Ruby 3.3 or newer, add the gem to your Gemfile and update your lockfile normally. This version is not yet published to RubyGems; use the development source:
+Requires Ruby 3.3+ and RSpec. Add to your Gemfile and run `bundle install`:
 
 ```ruby
-gem 'parallel_tests-ci', github: 'dblock/parallel_tests-ci', branch: 'master', require: false
+gem 'parallel_tests-ci', '0.1.0', require: false
 ```
 
 ## Usage
 
-Add the shared workflow to your CI:
+Add `.github/workflows/test.yml`:
 
 ```yaml
 name: Test
@@ -31,41 +29,49 @@ permissions:
 jobs:
   test:
     name: Test
-    uses: dblock/parallel_tests-ci/.github/workflows/rspec.yml@master
+    uses: dblock/parallel_tests-ci/.github/workflows/rspec.yml@v0.1.0
     with:
-      shards: 8 # Number of test shards (1-256), capped at the number of matching spec files.
+      shards: 8
 ```
 
-Ruby comes from your version file by default. Each shard runs on its own Ubuntu runner unless `runs-on` is overridden. The first run uses file sizes; successful default-branch pushes establish timings automatically, and PRs, including forks, read that history without updating it. Use matching gem/workflow refs; these development refs should be pinned to matching releases when available.
-
-Worker jobs appear as `Test / 1 of 8`, `Test / 2 of 8`, and so on. GitHub supplies the caller job's name as the prefix; the total reflects the actual shard count, capped at the number of matching spec files.
+Ruby comes from your version file; workers use Ubuntu by default. The first run groups by file size. Successful default-branch pushes supply timings for later runs; PRs read them without updating history. Jobs appear as `Test / 1 of 8`, capped at matching file count. Keep gem and workflow versions matched.
 
 ## Configuration
 
-| Input                     | Default                           | Purpose                                                                                     |
-| ---                       | ---                               | ---                                                                                         |
-| `runs-on`                 | `ubuntu-latest`                   | Runner label or JSON label array for all jobs; Linux and macOS supported.                   |
-| `timeout-minutes`         | `360`                             | Positive integer time limit per job, including setup; runner limits still apply.            |
-| `max-parallel`            | `256`                             | Maximum concurrent workers (1-256), subject to available runners.                           |
-| `fail-fast`               | `false`                           | Cancel other workers when a worker fails.                                                   |
-| `fetch-depth`             | `1`                               | Checkout history depth in all jobs; `0` fetches all history and tags.                       |
-| `ruby-version`            | Empty                             | Use the caller's version file unless overridden.                                            |
-| `bundler-cache`           | `true`                            | Cache gems in all jobs; `false` still installs gems before continuing.                      |
-| `shards`                  | `4`                               | Workers (1-256), capped at matching file count.                                             |
-| `worker-name`             | `{shard.number} of {shard.count}` | Worker label template; empty uses the default.                                              |
-| `pattern`                 | `spec/**/*_spec.rb`               | Spec-file glob, relative to the repository.                                                 |
-| `rspec-options`           | `[]`                              | JSON array of RSpec arguments.                                                              |
-| `environment`             | `{}`                              | JSON object of non-secret environment variables.                                            |
-| `before-bundle`           | Empty                             | Shell setup before gems in every job.                                                       |
-| `setup`                   | Empty                             | Shell setup before specs in each worker.                                                    |
-| `artifacts`               | Empty                             | Extra files to retain, including hidden files and failure diagnostics.                      |
-| `artifact-prefix`         | `parallel-tests-ci`               | Unique artifact prefix for multiple calls; letters, numbers, underscores, and hyphens only. |
-| `artifact-retention-days` | `30`                              | Days to retain plans, measurements, and test artifacts; `0` uses repository default.        |
-| `baseline-retention-days` | `90`                              | Days to retain trusted history; `0` uses repository default.                                |
+### Runners and Execution
 
-For example, `worker-name: 'RSpec {shard.number}/{shard.count} ({plan.group_by})'` produces `Test / RSpec 1/8 (runtime)`.
+| Input             | Default         | Purpose                                                                       |
+| ---               | ---             | ---                                                                           |
+| `runs-on`         | `ubuntu-latest` | Runner label or JSON label array for all jobs; Linux and macOS supported.     |
+| `timeout-minutes` | `360`           | Minutes per job, including setup; positive integer, subject to runner limits. |
+| `max-parallel`    | `256`           | Concurrent workers (1-256), subject to runner availability.                   |
+| `fail-fast`       | `false`         | Cancel other workers when a worker fails.                                     |
+| `fetch-depth`     | `1`             | Checkout history depth in all jobs; `0` fetches all history and tags.         |
+| `ruby-version`    | Empty           | Override the caller's Ruby version file.                                      |
+| `bundler-cache`   | `true`          | Cache gems in all jobs; `false` still installs gems.                          |
 
-See [Workflow Inputs](DESIGN.md#workflow-inputs) for runner examples, template variables, secret environments, setup rules, and retries.
+### Suite and Setup
+
+| Input           | Default                           | Purpose                                          |
+| ---             | ---                               | ---                                              |
+| `shards`        | `4`                               | Workers (1-256), capped at matching file count.  |
+| `worker-name`   | `{shard.number} of {shard.count}` | Worker label template; empty uses the default.   |
+| `pattern`       | `spec/**/*_spec.rb`               | Repository-relative spec glob.                   |
+| `rspec-options` | `[]`                              | JSON array of RSpec arguments.                   |
+| `environment`   | `{}`                              | JSON object of non-secret environment variables. |
+| `before-bundle` | Empty                             | Shell setup before gems in every job.            |
+| `setup`         | Empty                             | Shell setup before specs in each worker.         |
+
+### Artifacts
+
+| Input                     | Default             | Purpose                                                                              |
+| ---                       | ---                 | ---                                                                                  |
+| `artifacts`               | Empty               | Extra files to retain, including hidden files and failure diagnostics.               |
+| `artifact-prefix`         | `parallel-tests-ci` | Unique per call; letters, numbers, underscores, and hyphens only.                    |
+| `artifact-retention-days` | `30`                | Days to retain plans, measurements, and test artifacts; `0` uses repository default. |
+| `baseline-retention-days` | `90`                | Days to retain trusted history; `0` uses repository default.                         |
+
+See [Workflow Inputs](DESIGN.md#workflow-inputs) for templates, secret environments, and setup rules, and [Plans and Retries](DESIGN.md#plans-and-retries) for rerun behavior.
 
 ## Contributing
 
