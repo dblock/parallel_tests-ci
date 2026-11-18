@@ -28,7 +28,7 @@ Specs live in `spec/parallel_tests/ci/`; synthetic suites in `spec/fixtures/suit
 
 Inspect `coverage/index.html` for line/branch gaps; raw data is in `coverage/.resultset.json` and LCOV in `coverage/lcov.info`. Cover errors and edge cases, not trivial assertions; do not exclude runtime code. Package validation removes its temporary consumer; archives remain in ignored `pkg/`.
 
-CI tests the Ruby minimum/current release and calls the shared workflow for default names, templates, Linux/macOS runners, cached/uncached gems, full checkout, and execution/retention controls. Keep explicit inline `matrix.entry` combinations and separate Test, Lint, and Package workflows. Coveralls receives LCOV; Danger runs only in PR CI and exports its report for the trusted comment workflow.
+CI tests the Ruby minimum/current release and calls the shared workflow for default names, templates, Linux/macOS runners, cached/uncached gems, full checkout, and execution/retention controls. Keep explicit inline `matrix.entry` combinations and separate Test, Lint, and Package workflows. Coveralls receives LCOV; Danger runs only in PR CI and exports its report for the trusted comment workflow. Empty reports create no new comments; existing reports are still updated. Comment workflow changes take effect after merge.
 
 ## Pull Requests
 
