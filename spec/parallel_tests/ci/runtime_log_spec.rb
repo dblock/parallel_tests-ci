@@ -22,18 +22,25 @@ RSpec.describe ParallelTests::CI::RuntimeLog, :aggregate_failures do
     end
   end
 
-  it 'writes sorted upstream-compatible reports and accepts empty shard logs' do
+  it 'writes sorted upstream-compatible reports' do
     described_class.write('runtime.log', 'spec/z.rb' => 2.0, 'spec/a.rb' => 0.0)
     expect(File.read('runtime.log')).to eq("spec/a.rb:0.0\nspec/z.rb:2.0\n")
+  end
+
+  it 'accepts empty shard logs' do
     File.write('empty.log', '')
     expect(described_class.read('empty.log')).to eq({})
   end
 
-  it 'rejects duplicate measurements across reports and files outside the selected suite' do
+  it 'rejects duplicate measurements across reports' do
     File.write('first.log', "spec/a.rb:1\n")
     File.write('second.log', "spec/a.rb:2\n")
     expect { described_class.merge(%w[first.log second.log], files: ['spec/a.rb']) }
       .to raise_error(ArgumentError, /Duplicate/)
+  end
+
+  it 'rejects measured files outside the selected suite' do
+    File.write('first.log', "spec/a.rb:1\n")
     expect { described_class.merge(['first.log'], files: ['spec/b.rb']) }
       .to raise_error(ArgumentError, /Unexpected/)
   end

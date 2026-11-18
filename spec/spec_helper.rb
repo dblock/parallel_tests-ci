@@ -10,6 +10,10 @@ RSpec.shared_context 'with a temporary project' do
   around do |example|
     Dir.mktmpdir('parallel-tests-ci-spec') { |directory| Dir.chdir(directory) { example.run } }
   end
+
+  def copy_suite
+    FileUtils.cp_r(File.expand_path('fixtures/suite', __dir__), 'spec')
+  end
 end
 
 RSpec.configure do |config|

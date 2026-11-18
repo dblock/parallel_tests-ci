@@ -6,9 +6,7 @@ RSpec.describe ParallelTests::CI::Run, :aggregate_failures do
   let(:run) { described_class.prepare(directory: 'plan', pattern: 'spec/*.rb', shards: 2) }
   let(:observed) { File.expand_path('observed.txt') }
 
-  before do
-    FileUtils.cp_r(File.expand_path('../../fixtures/suite', __dir__), 'spec')
-  end
+  before { copy_suite }
 
   def report(shard, attempt: 1, entries: {}, fingerprint: run.fingerprint, folder: "#{shard}-#{attempt}")
     path = File.join('results', folder)
@@ -16,6 +14,14 @@ RSpec.describe ParallelTests::CI::Run, :aggregate_failures do
     File.write(File.join(path, 'result.json'),
                JSON.generate('plan' => fingerprint, 'shard' => shard, 'attempt' => attempt))
     ParallelTests::CI::RuntimeLog.write(File.join(path, 'runtime.log'), entries)
+  end
+
+  def run_shards(prepared)
+    prepared.matrix.each do |entry|
+      shard = entry.fetch(:shard)
+      expect(prepared.run(shard: shard, attempt: 1, directory: "results/#{shard}",
+                          env: { 'PTCI_OBSERVED' => observed })).to eq(0)
+    end
   end
 
   it 'caps a dynamic cold-start matrix at the file count and persists its plan' do
@@ -31,9 +37,12 @@ RSpec.describe ParallelTests::CI::Run, :aggregate_failures do
     end
   end
 
-  it 'rejects unmatched patterns and non-array RSpec options' do
+  it 'rejects unmatched patterns' do
     expect { described_class.prepare(directory: 'plan', pattern: 'missing/*.rb') }
       .to raise_error(ArgumentError, /No spec files/)
+  end
+
+  it 'rejects non-array RSpec options' do
     expect { described_class.prepare(directory: 'plan', rspec_options: '--fail-fast') }
       .to raise_error(ArgumentError, /array of strings/)
   end
@@ -55,10 +64,7 @@ RSpec.describe ParallelTests::CI::Run, :aggregate_failures do
   end
 
   it 'runs every cold-start file exactly once across real parallel_rspec subprocesses' do
-    run.matrix.each do |entry|
-      expect(run.run(shard: entry.fetch(:shard), attempt: 1, directory: "results/#{entry.fetch(:shard)}",
-                     env: { 'PTCI_OBSERVED' => observed })).to eq(0)
-    end
+    run_shards(run)
     combined = run.collect(directory: 'results', output: 'baseline/runtime.log')
     expect(File.readlines(observed, chomp: true).sort).to eq(%w[first second])
     expect(combined.keys.sort).to eq(%w[spec/first.rb spec/second.rb])
@@ -69,10 +75,7 @@ RSpec.describe ParallelTests::CI::Run, :aggregate_failures do
     prepared = described_class.prepare(directory: 'plan', pattern: 'spec/*.rb', shards: 2, history: 'history.log',
                                        rspec_options: ['--seed', '123'])
     expect(prepared.plan.fetch('group_by')).to eq('runtime')
-    prepared.matrix.each do |entry|
-      expect(prepared.run(shard: entry.fetch(:shard), attempt: 1, directory: "results/#{entry.fetch(:shard)}",
-                          env: { 'PTCI_OBSERVED' => observed })).to eq(0)
-    end
+    run_shards(prepared)
     expect(File.readlines(observed, chomp: true).sort).to eq(%w[first second])
     expect(File.read('plan/runtime.log')).to eq("spec/first.rb:0.0\n")
   end
@@ -85,11 +88,14 @@ RSpec.describe ParallelTests::CI::Run, :aggregate_failures do
     expect(File).not_to exist('result/result.json')
   end
 
-  it 'refuses a changed file set or sizes rather than repartitioning differently on one worker' do
+  it 'rejects specs resized after preparation' do
     run
     File.write('spec/first.rb', 'changed')
     expect { run.run(shard: 1, attempt: 1, directory: 'result') }
       .to raise_error(ArgumentError, /changed after preparation/)
+  end
+
+  it 'rejects shards outside the prepared matrix' do
     expect { run.run(shard: 3, attempt: 1, directory: 'result') }
       .to raise_error(ArgumentError, /outside the prepared matrix/)
   end
@@ -103,9 +109,14 @@ RSpec.describe ParallelTests::CI::Run, :aggregate_failures do
       .to eq('spec/first.rb' => 2.0, 'spec/second.rb' => 3.0)
   end
 
-  it 'rejects incomplete or unexpected shard sets' do
+  it 'rejects incomplete shard reports' do
     report(1, entries: { 'spec/first.rb' => 1 })
     expect { run.collect(directory: 'results', output: 'baseline.log') }.to raise_error(ArgumentError, /Incomplete/)
+  end
+
+  it 'rejects unexpected shard reports' do
+    report(1)
+    report(2)
     report(3)
     expect { run.collect(directory: 'results', output: 'baseline.log') }.to raise_error(ArgumentError, /unexpected/)
   end
@@ -127,13 +138,17 @@ RSpec.describe ParallelTests::CI::Run, :aggregate_failures do
     end.to raise_error(ArgumentError, /positive integer/)
   end
 
-  it 'requires some measurements but accepts an empty successful shard' do
+  it 'requires some measurements across successful shards' do
     report(1)
     report(2)
     expect do
       run.collect(directory: 'results', output: 'baseline.log')
     end.to raise_error(ArgumentError, /No test timings/)
+  end
+
+  it 'accepts an empty successful shard when another shard has timings' do
     report(1, entries: { 'spec/first.rb' => 1 })
+    report(2)
     expect(run.collect(directory: 'results', output: 'baseline.log')).to eq('spec/first.rb' => 1.0)
   end
 end

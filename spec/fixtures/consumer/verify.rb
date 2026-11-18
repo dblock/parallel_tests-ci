@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'parallel_tests/ci/github'
-require 'parallel_tests'
 require 'tmpdir'
 
 installation = File.realpath(ARGV.fetch(0))
@@ -14,12 +13,12 @@ fixture = File.expand_path('../suite', __dir__)
 Dir.mktmpdir('parallel-tests-ci-installed') do |directory|
   Dir.chdir(directory) do
     FileUtils.cp_r(fixture, 'spec')
-    ENV.update('GITHUB_OUTPUT' => 'outputs', 'GITHUB_RUN_ATTEMPT' => '1')
     inputs = { 'artifact-prefix' => 'consumer', 'pattern' => 'spec/*.rb', 'shards' => 8,
                'rspec-options' => JSON.generate(['--seed', '123']),
                'worker-name' => 'Installed "{shard.number}"/{shard.count} ({plan.group_by})' }
+    environment = { 'GITHUB_OUTPUT' => 'outputs', 'GITHUB_RUN_ATTEMPT' => '1', 'PTCI_INPUTS' => JSON.generate(inputs) }
     File.write('outputs', '')
-    unless system({ 'PTCI_INPUTS' => JSON.generate(inputs) }, Gem.ruby, '-rparallel_tests/ci/github', '-e',
+    unless system(environment, Gem.ruby, '-rparallel_tests/ci/github', '-e',
                   'ParallelTests::CI::GitHub.prepare(inputs: JSON.parse(ENV.fetch("PTCI_INPUTS")))')
       abort 'Installed package could not prepare JSON workflow inputs'
     end
@@ -32,8 +31,8 @@ Dir.mktmpdir('parallel-tests-ci-installed') do |directory|
     abort 'Installed package lost nested JSON arguments' unless run.plan.fetch('rspec_options') == ['--seed', '123']
     path = [File.dirname(Gem.bin_path('rspec-core', 'rspec')), ENV.fetch('PATH')].join(File::PATH_SEPARATOR)
     matrix.each do |entry|
-      code = run.run(shard: entry.fetch('shard'), attempt: 1, directory: "results/#{entry.fetch('shard')}",
-                     env: { 'PATH' => path })
+      shard = entry.fetch('shard')
+      code = run.run(shard: shard, attempt: 1, directory: "results/#{shard}", env: { 'PATH' => path })
       abort 'Installed shard failed' unless code.zero?
     end
     timings = run.collect(directory: 'results', output: 'baseline/runtime.log')
