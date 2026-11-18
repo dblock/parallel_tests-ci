@@ -73,8 +73,27 @@ module ParallelTests
         run = Run.prepare(directory: "#{DIRECTORY}/plan", history: "#{DIRECTORY}/history/runtime.log",
                           pattern: ENV.fetch('PTCI_PATTERN'), shards: ENV.fetch('PTCI_SHARDS'),
                           rspec_options: JSON.parse(ENV.fetch('PTCI_RSPEC_OPTIONS')))
-        outputs(matrix: JSON.generate(run.matrix), artifact: "#{prefix}-plan-#{ENV.fetch('GITHUB_RUN_ATTEMPT')}")
+        outputs(matrix: JSON.generate(worker_matrix(run)),
+                artifact: "#{prefix}-plan-#{ENV.fetch('GITHUB_RUN_ATTEMPT')}")
         puts "Prepared #{run.plan.fetch('shards')} shards using #{run.plan.fetch('group_by')} grouping."
+      end
+
+      def worker_matrix(run)
+        template = ENV.fetch('PTCI_WORKER_NAME', '')
+        template = '{shard.number} of {shard.count}' if template.empty?
+        values = { 'shard.count' => run.plan.fetch('shards').to_s, 'plan.group_by' => run.plan.fetch('group_by') }
+        run.matrix.map do |entry|
+          entry.merge(name: render_template(template, values.merge('shard.number' => entry.fetch(:shard).to_s)))
+        end
+      end
+
+      def render_template(template, values)
+        template.gsub(/\{([^{}]*)\}|[{}]/) do |token|
+          key = Regexp.last_match(1)
+          values.fetch(key) do
+            raise ArgumentError, "Unknown or malformed template placeholder: #{token}"
+          end
+        end
       end
 
       def run

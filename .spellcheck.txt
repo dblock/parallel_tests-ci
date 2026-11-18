@@ -45,6 +45,7 @@ runtimes
 tmp
 Multiline
 lockfile
+namespaced
 nonnegative
 upstream's
 accessor
