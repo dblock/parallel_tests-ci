@@ -1,6 +1,6 @@
 # Contributing
 
-Read [Design](DESIGN.md), [Coding Guidance](AGENTS.md), and [Releasing](RELEASING.md). The repository currently validates a scaffold; consumer timing-history behavior is not implemented.
+Read [Design](DESIGN.md), [Coding Guidance](AGENTS.md), and [Releasing](RELEASING.md) for integration boundaries, commands, and release authorization.
 
 ## Setup and Validation
 
@@ -13,17 +13,19 @@ bundle exec rake lint
 bundle exec rake package
 ```
 
-`bundle exec rake` runs tests and lint. `bundle exec rake build` only builds the gem; `bundle exec rake package` additionally inspects its file list, installs that exact archive into an owned temporary consumer, and loads the installed public entry point and upstream dependency. The temporary consumer is removed automatically; built gems remain under ignored `pkg/`.
+`bundle exec rake` runs tests and lint. `bundle exec rake build` only builds the gem; `bundle exec rake package` additionally inspects its file list, installs that exact archive into an owned temporary consumer, executes two real shards, and verifies complete measurement collection. The temporary consumer is removed automatically; built gems remain under ignored `pkg/`.
 
 Run final affected tests and lint before every commit/push, and package validation when public entry points, dependencies, or packaging change. Reuse passing results while the tested content and configuration are unchanged. Documentation-only changes need lint, not unrelated test or package reruns. Check available CI results without waiting after successful local checks.
 
 `bundle exec rake lint` runs RuboCop with RSpec/Rake, Markdown prose, embedded Ruby, and spelling plugins. Use Title Case for Markdown headings and YAML workflow, job, and step display names; YAML capitalization is a documented convention, not a lint rule. Keep Markdown paragraphs on one source line. Fix typos and review `.spellcheck.txt` additions rather than disabling checks broadly. For formatting, use `bundle exec rubocop -a` and inspect the resulting diff.
 
-CI keeps Test, Lint, and Package separate, uses explicit inline `matrix.entry` combinations, and tests the Ruby floor and current release. Coveralls consumes LCOV output. Danger runs in PR CI and exports a report for the trusted comment workflow; it is not a routine standalone local check. The changelog plugin supplies an update reminder only, because its default format parser does not match this repository's dash-style placeholder. The comment workflow becomes available after it exists on the default branch.
+CI keeps Test, Lint, and Package separate, uses explicit inline `matrix.entry` combinations, and tests the Ruby floor and current release. Test also calls the shared workflow with a synthetic two-file suite, so its real preparation/matrix/collection path runs in PR CI. Coveralls consumes LCOV output. Danger runs in PR CI and exports a report for the trusted comment workflow; it is not a routine standalone local check. The changelog plugin supplies an update reminder only, because its default format parser does not match this repository's dash-style placeholder.
 
 ## Tests
 
-Specs belong in `spec/`. The scaffold has no behavioral specs yet because the public entry point only loads the version; do not add trivial constant tests to populate the suite. Installed-gem validation uses `spec/fixtures/consumer/verify.rb` through the package task.
+Specs in `spec/parallel_tests/ci/` cover reports, cold/warm plans, real `parallel_rspec` subprocesses, failed runs, incomplete/duplicate collection, and retries. Run them together with `bundle exec rspec spec/parallel_tests/ci`. GitHub API boundaries use canonical response shapes through stubbed GitHub CLI calls; local tests never access live repositories. Synthetic suites in `spec/fixtures/suite/` deliberately do not end in `_spec.rb`, so the unit runner cannot execute them accidentally.
+
+Installed-gem validation uses `spec/fixtures/consumer/verify.rb` through the package task. It loads the archive rather than checkout sources, runs the same synthetic suite, and confirms each file executes exactly once. Keep this real consumer check when changing the public entry point, dependencies, execution, or packaging; do not add trivial constant tests to inflate coverage.
 
 `bundle exec rake spec` writes HTML line/branch coverage to `coverage/index.html`, raw coverage to `coverage/.resultset.json`, and LCOV to `coverage/lcov.info`. Inspect line and branch gaps and aim close to complete coverage of project-owned runtime code as functionality is added. Test meaningful errors and edge cases, actual `parallel_rspec` subprocesses, and real installed consumers; do not inflate coverage with trivial constant/accessor checks or exclude runtime code.
 

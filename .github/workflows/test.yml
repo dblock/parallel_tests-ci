@@ -9,6 +9,20 @@ permissions:
   contents: read
 
 jobs:
+  integration:
+    name: Exercise Shared Workflow
+    permissions:
+      contents: read
+      actions: read
+    uses: ./.github/workflows/rspec.yml
+    with:
+      ruby-version: '4.0'
+      shards: 2
+      pattern: spec/fixtures/suite/*.rb
+      artifact-prefix: integration
+      environment: '{"PTCI_OBSERVED":"tmp/parallel_tests_ci/observed.txt"}'
+      artifacts: tmp/parallel_tests_ci/observed.txt
+
   test:
     name: Test Ruby ${{ matrix.entry.ruby }} on ${{ matrix.entry.os }}
     runs-on: ${{ matrix.entry.os }}

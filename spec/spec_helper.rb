@@ -4,6 +4,13 @@ require 'simplecov'
 SimpleCov.start
 
 require 'parallel_tests/ci'
+require 'tmpdir'
+
+RSpec.shared_context 'with a temporary project' do
+  around do |example|
+    Dir.mktmpdir('parallel-tests-ci-spec') { |directory| Dir.chdir(directory) { example.run } }
+  end
+end
 
 RSpec.configure do |config|
   config.disable_monkey_patching!

@@ -6,3 +6,4 @@ coverage/
 pkg/
 vendor/
 *.gem
+tmp/parallel_tests_ci/

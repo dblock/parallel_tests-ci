@@ -2,7 +2,7 @@
 
 ## Status and Authorization
 
-Release tooling is provisional. Version `0.1.0` is unreleased, consumer functionality is not implemented, RubyGems Trusted Publishing is not configured, and no release environment has been authorized. Do not publish the scaffold.
+Release tooling is provisional. Version `0.1.0` is unreleased, RubyGems Trusted Publishing is not configured, and no release environment has been authorized. Implementation and documentation do not authorize publication.
 
 The Rakefile uses [ruby-gem-release](https://github.com/dblock/ruby-gem-release) 0.6 with its `RubyConstant` version adapter and `Intridea` changelog adapter. `.github/workflows/release.yml` references the matching `v0.6.0` reusable workflow and is manual-only. These files document and prepare the intended flow; they do not authorize credentials, environment setup, trusted publishing, tags/releases, or dispatch.
 

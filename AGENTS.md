@@ -4,13 +4,15 @@ Read [Contributing](CONTRIBUTING.md) for commands and workflow and [Design](DESI
 
 ## Scope and Layout
 
-The current tree is a scaffold, not a working consumer integration. Runtime code belongs in `lib/parallel_tests/ci/`, tests in `spec/`, and CI workflows in `.github/workflows/`. Ruby 3.3 is the supported floor; `.ruby-version` selects current development Ruby.
+Runtime code belongs in `lib/parallel_tests/ci/`, unit/integration specs in `spec/parallel_tests/ci/`, synthetic suites and the installed consumer in `spec/fixtures/`, and CI workflows in `.github/workflows/`. Ruby 3.3 is the supported floor; `.ruby-version` selects current development Ruby. The gem and shared workflow must use compatible refs; 0.1.0 is unreleased.
 
 Delegate partitioning, timing collection, and unknown-runtime estimation to the documented `parallel_tests` interfaces. Search for maintained libraries before implementing generic functionality. Do not patch dependencies, add a scheduler, parse console output as an API, create a public CLI, or build a provider framework. GitLab work is not in scope.
 
 ## Runtime Invariants
 
 One immutable historical snapshot, grouping mode, and shard count govern every worker. Generate explicit JSON entries for `matrix.entry`; never use matrix include/exclude or unrelated Cartesian axes. Missing or unusable history falls back centrally. First-run measurement is automatic, historical input stays separate from output, and incomplete or duplicate reports cannot replace a complete baseline.
+
+Keep the selected file set/sizes stable after preparation. Measurement markers require successful execution and identify both the exact plan/history fingerprint and retry attempt. Retries select the newest successful report per shard for that plan, never fill gaps from another plan, and never fabricate durations for files without timed example groups.
 
 Only successful trusted default-branch push runs provide authoritative timings. Fork PRs use read-only access and cannot publish baselines. Never execute artifacts, request a PAT, use `pull_request_target`, hide test failures, or skip tests because history is unavailable. Keep report handling separate from GitHub transport without speculative adapters.
 
