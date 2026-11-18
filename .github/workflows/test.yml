@@ -1,0 +1,40 @@
+name: Test
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test Ruby ${{ matrix.entry.ruby }} on ${{ matrix.entry.os }}
+    runs-on: ${{ matrix.entry.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        entry:
+          - { ruby: '3.3', os: ubuntu-latest }
+          - { ruby: '4.0', os: ubuntu-latest }
+          - { ruby: '4.0', os: macos-latest }
+    steps:
+      - name: Check Out Code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set Up Ruby
+        uses: ruby/setup-ruby@20eb24b0d509e2b9ed9b6d42ddfeb992915e0564
+        with:
+          ruby-version: ${{ matrix.entry.ruby }}
+          bundler-cache: true
+      - name: Run Tests
+        run: bundle exec rake spec
+      - name: Upload Coverage to Coveralls
+        if: matrix.entry.ruby == '4.0' && matrix.entry.os == 'ubuntu-latest'
+        uses: coverallsapp/github-action@8d6379e14d29928660c4ba802d8e85393440b329 # v2.3.8
+        with:
+          file: coverage/lcov.info
+          format: lcov
+          fail-on-error: false
