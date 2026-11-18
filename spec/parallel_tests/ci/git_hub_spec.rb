@@ -7,8 +7,11 @@ RSpec.describe ParallelTests::CI::GitHub, :aggregate_failures do
 
   let(:environment) do
     { 'GITHUB_EVENT_PATH' => 'event.json', 'GITHUB_OUTPUT' => 'outputs', 'GITHUB_REPOSITORY' => 'owner/project',
-      'GITHUB_RUN_ID' => '21', 'GITHUB_RUN_ATTEMPT' => '2', 'PTCI_PREFIX' => 'test-ci',
-      'PTCI_PATTERN' => 'spec/*.rb', 'PTCI_SHARDS' => '1', 'PTCI_RSPEC_OPTIONS' => '[]', 'PTCI_SHARD' => '1' }
+      'GITHUB_RUN_ID' => '21', 'GITHUB_RUN_ATTEMPT' => '2' }
+  end
+
+  let(:inputs) do
+    { 'artifact-prefix' => 'test-ci', 'pattern' => 'spec/*.rb', 'shards' => 1, 'rspec-options' => '[]' }
   end
 
   before do
@@ -16,7 +19,6 @@ RSpec.describe ParallelTests::CI::GitHub, :aggregate_failures do
     File.write('outputs', '')
     allow(ENV).to receive(:fetch).and_call_original
     environment.each { |key, value| allow(ENV).to receive(:fetch).with(key).and_return(value) }
-    allow(ENV).to receive(:fetch).with('PTCI_WORKER_NAME', '').and_return('')
   end
 
   def response(path, payload, paginate: false)
@@ -39,8 +41,7 @@ RSpec.describe ParallelTests::CI::GitHub, :aggregate_failures do
   end
 
   def prepare_matrix(template)
-    allow(ENV).to receive(:fetch).with('PTCI_WORKER_NAME', '').and_return(template)
-    described_class.prepare
+    described_class.prepare(inputs: inputs.merge('worker-name' => template))
     JSON.parse(File.readlines('outputs').grep(/\Amatrix=/).last.delete_prefix('matrix='))
   end
 
@@ -50,9 +51,10 @@ RSpec.describe ParallelTests::CI::GitHub, :aggregate_failures do
   end
 
   describe 'worker names during preparation' do
+    let(:inputs) { super().merge('shards' => 8) }
+
     before do
       FileUtils.cp_r(File.expand_path('../../fixtures/suite', __dir__), 'spec')
-      allow(ENV).to receive(:fetch).with('PTCI_SHARDS').and_return('8')
     end
 
     it 'uses the default for an empty template and the actual capped total' do
@@ -90,7 +92,7 @@ RSpec.describe ParallelTests::CI::GitHub, :aggregate_failures do
     history_runs([historical_run(1, event: 'pull_request'), historical_run(2, conclusion: 'failure'),
                   historical_run(3, head_repository: { 'full_name' => 'fork/project' }),
                   historical_run(4, head_repository: nil), historical_run(5, head_branch: 'topic')])
-    described_class.find_history
+    described_class.find_history(inputs: inputs)
     expect(File.read('outputs')).to be_empty
   end
 
@@ -102,38 +104,39 @@ RSpec.describe ParallelTests::CI::GitHub, :aggregate_failures do
              [{ 'artifacts' => [] },
               { 'artifacts' => [{ 'id' => 99, 'name' => 'test-ci-runtimes', 'expired' => false }] }],
              paginate: true)
-    described_class.find_history
+    described_class.find_history(inputs: inputs)
     expect(File.read('outputs')).to eq("history_run=2\nhistory_artifact=99\n")
   end
 
   it 'escapes default branch names when querying only the caller workflow' do
     File.write('event.json', JSON.generate('repository' => { 'default_branch' => 'release/stable' }))
     history_runs([], branch: 'release%2Fstable')
-    described_class.find_history
+    described_class.find_history(inputs: inputs)
     expect(File.read('outputs')).to be_empty
   end
 
   it 'falls back without requiring history access when GitHub rejects the request' do
     allow(Open3).to receive(:capture3).and_return(['', 'forbidden', instance_double(Process::Status, success?: false)])
-    expect { described_class.find_history }.to output(/using file sizes: forbidden/).to_stderr
+    expect { described_class.find_history(inputs: inputs) }.to output(/using file sizes: forbidden/).to_stderr
     expect(File.read('outputs')).to be_empty
   end
 
   it 'falls back when history metadata is not valid JSON' do
     allow(Open3).to receive(:capture3).and_return(['{', '', instance_double(Process::Status, success?: true)])
-    expect { described_class.find_history }.to output(/Timing history unavailable/).to_stderr
+    expect { described_class.find_history(inputs: inputs) }.to output(/Timing history unavailable/).to_stderr
   end
 
   it 'rejects unsafe artifact prefixes instead of broadening the artifact search' do
-    allow(ENV).to receive(:fetch).with('PTCI_PREFIX').and_return('test-*')
-    expect { described_class.prefix }.to raise_error(ArgumentError, /Artifact prefix/)
+    expect { described_class.find_history(inputs: inputs.merge('artifact-prefix' => 'test-*')) }
+      .to raise_error(ArgumentError, /Artifact prefix/)
   end
 
   it 'drives preparation, real RSpec execution, measurement upload naming, and collection' do
     FileUtils.cp_r(File.expand_path('../../fixtures/suite', __dir__), 'spec')
-    described_class.prepare
+    described_class.prepare(inputs: inputs)
     expect(File.read('outputs')).to include('matrix=[{"shard":1,"name":"1 of 1"}]', 'artifact=test-ci-plan-2')
-    expect { described_class.run }.to raise_error(SystemExit) { |error| expect(error.status).to eq(0) }
+    expect { described_class.run(inputs: inputs, shard: 1) }
+      .to raise_error(SystemExit) { |error| expect(error.status).to eq(0) }
     FileUtils.mkdir_p('tmp/parallel_tests_ci/results')
     FileUtils.cp_r('tmp/parallel_tests_ci/result', 'tmp/parallel_tests_ci/results/shard')
     described_class.collect
@@ -144,7 +147,8 @@ RSpec.describe ParallelTests::CI::GitHub, :aggregate_failures do
   it 'propagates a failed shard without publishing success outputs' do
     runner = instance_double(ParallelTests::CI::Run, run: 17)
     allow(ParallelTests::CI::Run).to receive(:new).with('tmp/parallel_tests_ci/plan').and_return(runner)
-    expect { described_class.run }.to raise_error(SystemExit) { |error| expect(error.status).to eq(17) }
+    expect { described_class.run(inputs: inputs, shard: 1) }
+      .to raise_error(SystemExit) { |error| expect(error.status).to eq(17) }
     expect(File.read('outputs')).to be_empty
   end
 end

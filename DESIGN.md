@@ -62,6 +62,13 @@ The caller cannot reference the internal worker matrix directly. Keep gem/workfl
 
 Specs are discovered before application setup; setup must not add, remove, or resize them. Setup scripts are caller-owned, never artifact-supplied. Keep secrets out of RSpec arguments and uploaded files.
 
+| Transport       | Behavior                                                                                                               |
+| ---             | ---                                                                                                                    |
+| `PTCI_INPUTS`   | `toJSON(inputs)`, parsed once at each Ruby entry point; configuration then passes as explicit arguments.               |
+| Types           | Numbers stay numeric; JSON-string inputs such as `rspec-options` are decoded separately.                               |
+| Separate values | GitHub metadata, authentication, and the worker's `PTCI_SHARD` remain outside the input object.                        |
+| Scope           | Declared inputs only, not workflow secrets or the full GitHub context; Ruby never prints or persists the whole object. |
+
 ### Artifacts and Retries
 
 | Item            | Rule                                                                                             |

@@ -5,6 +5,7 @@ Copilot
 Coveralls
 Dangerfile
 Doubrovkine
+ENV
 Gemfile
 Gemfile.lock
 GitLab
