@@ -11,7 +11,7 @@ RSpec.describe ParallelTests::CI::GitHub, :aggregate_failures do
   end
 
   let(:inputs) do
-    { 'artifact-prefix' => 'test-ci', 'pattern' => 'spec/*.rb', 'shards' => 1, 'rspec-options' => '[]' }
+    { 'artifact-prefix' => 'test-ci', 'pattern' => 'spec/*.rb', 'shards' => 1, 'test-options' => '[]' }
   end
 
   before do
@@ -154,6 +154,12 @@ RSpec.describe ParallelTests::CI::GitHub, :aggregate_failures do
       expect(ParallelTests::CI::RuntimeLog.read('tmp/parallel_tests_ci/baseline/runtime.log').keys.sort)
         .to eq(%w[spec/first.rb spec/second.rb])
     end
+  end
+
+  it 'rejects malformed JSON test options before preparing a plan' do
+    copy_suite
+    expect { described_class.prepare(inputs: inputs.merge('test-options' => '[')) }.to raise_error(JSON::ParserError)
+    expect(File).not_to exist('tmp/parallel_tests_ci/plan/plan.json')
   end
 
   it 'propagates a failed shard without publishing success outputs' do

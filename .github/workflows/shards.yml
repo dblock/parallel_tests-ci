@@ -51,8 +51,8 @@ on:
         description: Repository-relative glob selecting test files.
         type: string
         required: true
-      rspec-options:
-        description: JSON array of additional RSpec arguments.
+      test-options:
+        description: JSON array of additional arguments for the selected test framework.
         type: string
         default: '[]'
       environment:

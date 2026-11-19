@@ -50,7 +50,7 @@ jobs:
 
 ### Minitest
 
-Minitest matches `test/**/*_test.rb` by default; `rspec-options` is not available.
+Minitest matches `test/**/*_test.rb` by default.
 
 If your test boot calls `Bundler.require`, use this Gemfile entry instead of `require: false`:
 
@@ -103,10 +103,12 @@ If you manage your own CI jobs, see the [standalone test workflow](.github/workf
 | `shards`        | `4`                               | Workers (1-256), capped at spec file count. |
 | `worker-name`   | `{shard.number} of {shard.count}` | Worker label template.                      |
 | `pattern`       | `spec/**/*_spec.rb`               | Repository-relative spec glob.              |
-| `rspec-options` | `[]`                              | RSpec arguments as a JSON array.            |
+| `test-options`  | `[]`                              | Test framework arguments as a JSON array.   |
 | `environment`   | `{}`                              | Non-secret env vars as a JSON object.       |
 | `before-bundle` | Empty                             | Shell setup before gem install in all jobs. |
 | `setup`         | Empty                             | Shell setup before specs in each worker.    |
+
+Use arguments supported by the selected framework, for example `test-options: '["--seed","123"]'`.
 
 ### Shard Grouping
 
@@ -143,7 +145,7 @@ See [Workflow Inputs](DESIGN.md#workflow-inputs) for templates, secret environme
 
 ## Contributing
 
-See [Contributing](CONTRIBUTING.md), [Coding Guidance](AGENTS.md), [Design](DESIGN.md), [Changelog](CHANGELOG.md), and [Releasing](RELEASING.md).
+See [Contributing](CONTRIBUTING.md), [Coding Guidance](AGENTS.md), [Design](DESIGN.md), [Changelog](CHANGELOG.md), [Releasing](RELEASING.md), and [Upgrading](UPGRADING.md).
 
 ## License
 

@@ -18,6 +18,7 @@ jobs:
       shards: 8
       worker-name: 'RSpec {shard.number}/{shard.count} ({plan.group_by})'
       pattern: spec/fixtures/suite/*.rb
+      test-options: '["--seed","123"]'
       artifact-prefix: integration-templates
       environment: '{"PTCI_OBSERVED":"tmp/parallel_tests_ci/observed.txt"}'
       artifacts: tmp/parallel_tests_ci/observed.txt
@@ -29,6 +30,7 @@ jobs:
       ruby-version: '4.0'
       shards: 2
       pattern: spec/fixtures/minitest/*_test.rb
+      test-options: '["--seed","123"]'
       worker-name: 'Minitest {shard.number}/{shard.count} ({plan.group_by})'
       environment: '{"PTCI_OBSERVED":"tmp/parallel_tests_ci/observed.txt"}'
 

@@ -30,7 +30,6 @@ RSpec.describe 'Framework workflow contract' do # rubocop:disable RSpec/Describe
 
       it 'exposes the shared input contract with framework-specific defaults' do
         expected = input_contract(shared_call.fetch('inputs')).except('framework')
-        expected.delete('rspec-options') unless framework == 'rspec'
         defaults.each do |name, default|
           expected[name] = expected.fetch(name).except('required').merge('default' => default)
         end

@@ -35,4 +35,12 @@ RSpec.describe ParallelTests::CI::Run, :aggregate_failures do
     expect(prepared.run(shard: 1, attempt: 1, directory: 'result', env: env)).to eq(1)
     expect(File).not_to exist('result/result.json')
   end
+
+  it 'passes test options with spaces to Minitest while preserving timing collection' do
+    prepared = described_class.prepare(directory: 'plan', framework: 'minitest', shards: 1,
+                                       test_options: ['--name', '/test_first|no match/'])
+    expect(prepared.run(shard: 1, attempt: 1, directory: 'results/1', env: { 'PTCI_OBSERVED' => observed })).to eq(0)
+    expect(File.readlines(observed, chomp: true)).to eq(['first'])
+    expect(prepared.collect(directory: 'results', output: 'baseline.log').keys).to include('test/first_test.rb')
+  end
 end

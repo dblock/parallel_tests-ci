@@ -47,6 +47,10 @@ on:
         description: Repository-relative glob selecting test files.
         type: string
         default: test/**/*_test.rb
+      test-options:
+        description: JSON array of additional arguments for the selected test framework.
+        type: string
+        default: '[]'
       environment:
         description: JSON object of non-secret environment variables.
         type: string
@@ -101,6 +105,7 @@ jobs:
       worker-name: ${{ inputs.worker-name }}
       group-by: ${{ inputs.group-by }}
       pattern: ${{ inputs.pattern }}
+      test-options: ${{ inputs.test-options }}
       environment: ${{ inputs.environment }}
       before-bundle: ${{ inputs.before-bundle }}
       setup: ${{ inputs.setup }}

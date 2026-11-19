@@ -15,7 +15,7 @@ Dir.mktmpdir('parallel-tests-ci-installed') do |directory|
   Dir.chdir(directory) do
     FileUtils.cp_r(fixture, 'spec')
     inputs = { 'artifact-prefix' => 'consumer', 'pattern' => 'spec/*.rb', 'shards' => 8,
-               'rspec-options' => JSON.generate(['--seed', '123']),
+               'test-options' => JSON.generate(['--seed', '123']),
                'worker-name' => 'Installed "{shard.number}"/{shard.count} ({plan.group_by})' }
     environment = { 'GITHUB_OUTPUT' => 'outputs', 'GITHUB_RUN_ATTEMPT' => '1', 'PTCI_INPUTS' => JSON.generate(inputs) }
     File.write('outputs', '')
@@ -29,7 +29,7 @@ Dir.mktmpdir('parallel-tests-ci-installed') do |directory|
       abort 'Installed package did not render worker names using the capped total'
     end
     run = ParallelTests::CI::Run.new('tmp/parallel_tests_ci/plan')
-    abort 'Installed package lost nested JSON arguments' unless run.plan.fetch('rspec_options') == ['--seed', '123']
+    abort 'Installed package lost nested JSON arguments' unless run.plan.fetch('test_options') == ['--seed', '123']
     unless run.file_matrix.flat_map { |entry| entry.fetch(:files) }.sort == %w[spec/first.rb spec/second.rb]
       abort 'Installed package did not assign every file to the standalone matrix'
     end
@@ -43,6 +43,19 @@ Dir.mktmpdir('parallel-tests-ci-installed') do |directory|
     unless timings.keys.sort == %w[spec/first.rb spec/second.rb] &&
            File.readlines('observed.txt', chomp: true).sort == %w[first second]
       abort 'Installed package did not execute every spec exactly once'
+    end
+
+    FileUtils.cp_r(File.expand_path('../minitest', __dir__), 'test')
+    minitest_run = ParallelTests::CI::Run.prepare(directory: 'minitest-plan', framework: 'minitest', shards: 1,
+                                                  test_options: ['--name', '/test_first|no match/'])
+    env = { 'PATH' => path, 'PTCI_OBSERVED' => File.expand_path('minitest-observed.txt') }
+    unless minitest_run.run(shard: 1, attempt: 1, directory: 'minitest-results/1', env: env).zero?
+      abort 'Installed Minitest shard failed'
+    end
+    minitest_timings = minitest_run.collect(directory: 'minitest-results', output: 'minitest-baseline.log')
+    observed = File.readlines('minitest-observed.txt', chomp: true)
+    unless observed == ['first'] && minitest_timings.key?('test/first_test.rb')
+      abort "Installed Minitest shard produced #{observed.inspect} and #{minitest_timings.keys.inspect}"
     end
 
     File.write('Gemfile', <<~GEMFILE)

@@ -24,15 +24,15 @@ module ParallelTests
         new(directory)
       end
 
-      def self.configuration(pattern: nil, shards: 4, rspec_options: [], framework: 'rspec')
+      def self.configuration(pattern: nil, shards: 4, test_options: [], framework: 'rspec')
         count = positive_integer(shards)
         raise ArgumentError, 'GitHub Actions allows at most 256 shards' if count > 256
-        unless rspec_options.is_a?(Array) && rspec_options.all?(String)
-          raise ArgumentError, 'RSpec options must be an array of strings'
+        unless test_options.is_a?(Array) && test_options.all?(String)
+          raise ArgumentError, 'Test options must be an array of strings'
         end
 
         plan = selection(pattern, framework)
-        plan.merge('shards' => [count, plan.fetch('sizes').size].min, 'rspec_options' => rspec_options)
+        plan.merge('shards' => [count, plan.fetch('sizes').size].min, 'test_options' => test_options)
       end
 
       def self.selection(pattern, framework)
@@ -153,7 +153,7 @@ module ParallelTests
 
       def execute_shard(index, output, env)
         files = plan.fetch('sizes').keys.map { |file| "./#{file}" }
-        runner.run(shard_flags(index), files: files, options: plan.fetch('rspec_options'), output: output, env: env)
+        runner.run(shard_flags(index), files: files, options: plan.fetch('test_options'), output: output, env: env)
       end
 
       def shard_flags(index)
