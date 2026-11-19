@@ -48,7 +48,7 @@ on:
         type: string
         default: test/**/*_test.rb
       test-options:
-        description: JSON array of additional arguments for the selected test framework.
+        description: JSON array of additional Minitest arguments.
         type: string
         default: '[]'
       environment:
