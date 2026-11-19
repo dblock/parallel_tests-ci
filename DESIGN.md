@@ -68,7 +68,7 @@ Portable `Run` and `RuntimeLog` operations do not access GitHub. The internal `G
 
 ## Artwork
 
-The original AI-assisted logo is MIT-licensed, with no third-party artwork. Keep the editable [SVG](assets/logo.svg) and [PNG](assets/logo.png) together. Render from the repository root with librsvg:
+The original AI-assisted logo is MIT-licensed, with no third-party artwork. A single perspective camera projects the solid cube and eight separated small cubes; faces are painted back to front. The Test badge supplies greens `#34D058` and `#28A745`, with a darker side and lightly shaded white faces. Keep the editable [SVG](assets/logo.svg) and [PNG](assets/logo.png) together. Render from the repository root with librsvg:
 
 ```sh
 rsvg-convert --output assets/logo.png assets/logo.svg

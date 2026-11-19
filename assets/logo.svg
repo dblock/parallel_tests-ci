@@ -1,39 +1,36 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="135 190 760 760">
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
   <title>Parallel Tests CI</title>
-  <desc>A solid blue cube in front of eight white cubes outlined in the same blue, painted back to front.</desc>
-  <defs>
-    <linearGradient id="indigo-top" x1="0" y1="0" x2="1" y2="1">
-      <stop stop-color="#3b4795"/>
-      <stop offset="1" stop-color="#364086"/>
-    </linearGradient>
-    <linearGradient id="indigo-left" x1="0" y1="0" x2="1" y2="1">
-      <stop stop-color="#4d61cc"/>
-      <stop offset="1" stop-color="#4353b9"/>
-    </linearGradient>
-    <linearGradient id="indigo-right" x1="0" y1="0" x2="1" y2="1">
-      <stop stop-color="#3b4795"/>
-      <stop offset="1" stop-color="#333d75"/>
-    </linearGradient>
-    <g id="cubelet">
-      <path d="M -98.726896 -57 L 0 0 L 0 114 L -98.726896 57 Z" fill="#ffffff" stroke="#4d61cc" stroke-width="4" stroke-linejoin="round"/>
-      <path d="M 0 0 L 98.726896 -57 L 98.726896 57 L 0 114 Z" fill="#ffffff" stroke="#4d61cc" stroke-width="4" stroke-linejoin="round"/>
-      <path d="M 0 -114 L 98.726896 -57 L 0 0 L -98.726896 -57 Z" fill="#ffffff" stroke="#4d61cc" stroke-width="4" stroke-linejoin="round"/>
-    </g>
-  </defs>
-  <path d="M 135 190 H 895 V 950 H 135 Z" fill="#ffffff"/>
-  <g id="split-cube" data-edge="114" data-gap="12">
-    <use href="#cubelet" data-origin="0 -252 0" transform="translate(618.238402 494)"/>
-    <use href="#cubelet" data-origin="126 -252 0" transform="translate(727.357603 557)"/>
-    <use href="#cubelet" data-origin="0 -126 0" transform="translate(509.119201 557)"/>
-    <use href="#cubelet" data-origin="0 -252 126" transform="translate(618.238402 368)"/>
-    <use href="#cubelet" data-origin="126 -126 0" transform="translate(618.238402 620)"/>
-    <use href="#cubelet" data-origin="126 -252 126" transform="translate(727.357603 431)"/>
-    <use href="#cubelet" data-origin="0 -126 126" transform="translate(509.119201 431)"/>
-    <use href="#cubelet" data-origin="126 -126 126" transform="translate(618.238402 494)"/>
+  <desc>A green cube in front of eight separated outlined cubelets, projected from one perspective camera.</desc>
+  <rect width="1024" height="1024" fill="white"/>
+  <g stroke="#28A745" stroke-width="4" stroke-linejoin="round">
+    <polygon points="780.053,517.842 695.567,580.193 698.678,450.213 784.447,389.634" fill="#edf8ef"/>
+    <polygon points="662.079,345.867 784.447,389.634 698.678,450.213 575.067,404.535" fill="#ffffff"/>
+    <polygon points="573.960,533.183 695.567,580.193 698.678,450.213 575.067,404.535" fill="#f7fcf8"/>
+    <polygon points="917.615,569.339 834.602,633.940 840.081,502.465 924.325,439.664" fill="#edf8ef"/>
+    <polygon points="797.555,394.323 924.325,439.664 840.081,502.465 711.924,455.108" fill="#ffffff"/>
+    <polygon points="784.917,375.900 699.011,436.283 702.235,301.522 789.469,243.079" fill="#edf8ef"/>
+    <polygon points="664.857,200.883 789.469,243.079 702.235,301.522 576.333,257.451" fill="#ffffff"/>
+    <polygon points="575.186,390.753 699.011,436.283 702.235,301.522 576.333,257.451" fill="#f7fcf8"/>
+    <polygon points="708.596,585.229 834.602,633.940 840.081,502.465 711.924,455.108" fill="#f7fcf8"/>
+    <polygon points="686.463,586.912 597.877,652.290 599.429,520.311 689.432,456.743" fill="#edf8ef"/>
+    <polygon points="565.691,410.857 689.432,456.743 599.429,520.311 474.455,472.374" fill="#ffffff"/>
+    <polygon points="474.950,602.992 597.877,652.290 599.429,520.311 474.455,472.374" fill="#f7fcf8"/>
+    <polygon points="925.044,425.768 840.668,488.370 846.352,351.969 932.000,291.342" fill="#edf8ef"/>
+    <polygon points="802.822,247.601 932.000,291.342 846.352,351.969 715.732,306.247" fill="#ffffff"/>
+    <polygon points="712.281,441.163 840.668,488.370 846.352,351.969 715.732,306.247" fill="#f7fcf8"/>
+    <polygon points="689.750,442.793 599.596,506.162 601.207,369.207 692.827,307.825" fill="#edf8ef"/>
+    <polygon points="825.653,640.904 738.535,708.699 742.514,575.196 830.995,509.238" fill="#edf8ef"/>
+    <polygon points="702.693,461.661 830.995,509.238 742.514,575.196 612.828,525.451" fill="#ffffff"/>
+    <polygon points="566.790,263.549 692.827,307.825 601.207,369.207 473.889,322.914" fill="#ffffff"/>
+    <polygon points="611.052,657.574 738.535,708.699 742.514,575.196 612.828,525.451" fill="#f7fcf8"/>
+    <polygon points="474.402,458.374 599.596,506.162 601.207,369.207 473.889,322.914" fill="#f7fcf8"/>
+    <polygon points="831.568,495.122 742.941,560.878 747.073,422.245 837.111,358.511" fill="#edf8ef"/>
+    <polygon points="706.339,312.572 837.111,358.511 747.073,422.245 614.862,374.172" fill="#ffffff"/>
+    <polygon points="613.019,511.285 742.941,560.878 747.073,422.245 614.862,374.172" fill="#f7fcf8"/>
   </g>
-  <g id="solid-front-cube">
-    <path d="M 192.153903 500 L 400 620 L 400 860 L 192.153903 740 Z" fill="url(#indigo-left)"/>
-    <path d="M 400 620 L 607.846097 500 L 607.846097 740 L 400 860 Z" fill="url(#indigo-right)"/>
-    <path d="M 400 380 L 607.846097 500 L 400 620 L 192.153903 500 Z" fill="url(#indigo-top)"/>
+  <g stroke-width="0.8" stroke-linejoin="round">
+    <polygon points="569.089,673.535 366.407,823.117 361.144,530.041 571.403,389.175" fill="#228f3b" stroke="#228f3b"/>
+    <polygon points="307.442,292.123 571.403,389.175 361.144,530.041 92.000,423.103" fill="#34D058" stroke="#34D058"/>
+    <polygon points="106.574,709.611 366.407,823.117 361.144,530.041 92.000,423.103" fill="#28A745" stroke="#28A745"/>
   </g>
 </svg>
