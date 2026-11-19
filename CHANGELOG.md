@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.0 (Next)
+## 0.1.0 (2026/11/19)
 
 - [#2](https://github.com/dblock/parallel_tests-ci/pull/2): Add runtime-balanced RSpec shards and automatic trusted timing history - [@dblock](https://github.com/dblock).
 - [#4](https://github.com/dblock/parallel_tests-ci/pull/4): Add an editable cube logo and PNG - [@dblock](https://github.com/dblock).
@@ -14,4 +14,3 @@
 - [#13](https://github.com/dblock/parallel_tests-ci/pull/13): Refine the cube logo with consistent 3D perspective and Test badge greens - [@dblock](https://github.com/dblock).
 - [#14](https://github.com/dblock/parallel_tests-ci/pull/14): Link Posebook demo runs with cold and warm timing results and a test execution chart - [@dblock](https://github.com/dblock).
 - [#16](https://github.com/dblock/parallel_tests-ci/pull/16): Document approved release protections and first-publication setup, and validate the installed package before release - [@dblock](https://github.com/dblock).
-- Your contribution here.
