@@ -1,0 +1,58 @@
+name: Test Standalone Action
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  plan_standalone:
+    name: Plan With Standalone Action
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+    steps:
+      - name: Check Out Code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set Up Ruby
+        uses: ruby/setup-ruby@f9c4492e86def3e644ab32a0ef185eda5b0c20d0 # v1.342.0
+        with:
+          ruby-version: '4.0'
+          bundler-cache: true
+      - name: Plan Shards
+        id: plan
+        uses: ./
+        with:
+          pattern: spec/fixtures/suite/*.rb
+          shards: '2'
+
+  run_standalone:
+    name: Run Standalone Shard ${{ matrix.entry.shard }}
+    needs: plan_standalone
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        entry: ${{ fromJSON(needs.plan_standalone.outputs.matrix) }}
+    steps:
+      - name: Check Out Code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set Up Ruby
+        uses: ruby/setup-ruby@f9c4492e86def3e644ab32a0ef185eda5b0c20d0 # v1.342.0
+        with:
+          ruby-version: '4.0'
+          bundler-cache: true
+      - name: Run Assigned Specs
+        env:
+          SPEC_FILES: ${{ toJSON(matrix.entry.files) }}
+          PTCI_OBSERVED: ${{ runner.temp }}/standalone-observed.txt
+        run: >-
+          bundle exec ruby -rjson -e 'exec Gem.ruby, "-S", "rspec", "--",
+          *JSON.parse(ENV.fetch("SPEC_FILES")).map { |file| "./#{file}" }'

@@ -1,11 +1,12 @@
 # Changelog
 
-## 0.1.1 (Next)
+## 0.2.0 (Next)
 
 - [#17](https://github.com/dblock/parallel_tests-ci/pull/17): Remove the release environment approval gate while retaining the master-only restriction - [@dblock](https://github.com/dblock).
 - [#18](https://github.com/dblock/parallel_tests-ci/pull/18): Add a RubyGems version badge to README - [@dblock](https://github.com/dblock).
 - [#24](https://github.com/dblock/parallel_tests-ci/pull/24): Remove the second warm run from the Posebook demo - [@dblock](https://github.com/dblock).
 - [#25](https://github.com/dblock/parallel_tests-ci/pull/25): Remove the second cold run from the Posebook demo - [@dblock](https://github.com/dblock).
+- [#26](https://github.com/dblock/parallel_tests-ci/pull/26): Add a standalone GitHub Action that outputs RSpec shard assignments - [@dblock](https://github.com/dblock).
 - Your contribution here.
 
 ## 0.1.0 (2026/11/19)
