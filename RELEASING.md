@@ -10,7 +10,7 @@ Before dispatch, verify:
 
 - The target version is absent from RubyGems and its release tag does not exist.
 - The version constant and Next changelog heading match.
-- The `release` environment requires @dblock approval, permits self-approval, disables administrator bypass, and accepts only the `master` branch.
+- The `release` environment accepts only the `master` branch, with no required reviewers or deployment approval gate.
 - RubyGems Trusted Publishing identifies this repository's `release.yml` and reusable-workflow repository `dblock/ruby-gem-release`. First publication needs a pending publisher and authorized `rubygems-owner` account ID.
 
 The approved branch rules permit fast-forward pushes by all writers, not just automation, while blocking force pushes and branch deletion with no bypass actors. Authorized release automation pushes release metadata and the next development version directly to `master`; ordinary development still uses PRs.
@@ -35,7 +35,7 @@ Verify the saved publisher, then supply the numeric RubyGems account ID from tha
 gh workflow run release.yml --repo github.com/dblock/parallel_tests-ci --ref master -f rubygems-owner=YOUR_ACCOUNT_ID
 ```
 
-Approve the pending `release` environment deployment in GitHub Actions. Setup alone does not dispatch or publish.
+An authorized dispatch proceeds without a separate environment approval. Setup alone does not dispatch or publish.
 
 ## Validation
 
