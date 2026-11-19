@@ -6,6 +6,12 @@ The gem validates plans and timing reports; `.github/workflows/rspec.yml` handle
 
 Scope is RSpec on GitHub Actions, without a hosted service, public CLI, or other-provider abstraction. Automatic shard sizing is not implemented.
 
+## Standalone Shard Matrix Action
+
+The [standalone action](README.md#standalone-shard-matrix-action) uses the same file discovery, timing validation, and upstream partitioner as the reusable workflow. It does not create jobs, run tests, or manage timing artifacts.
+
+`shards` defaults to `4`, accepts `1` through `256`, and is capped at the number of matching files. No matches fail the step. The JSON `matrix` output contains one-based `shard` numbers and `files` arrays of repository-relative paths. Empty groups are omitted. The `group-by` output is `filesize` or `runtime`. GitHub's job output size limits apply to the file lists.
+
 ## Workflow
 
 | Job     | Behavior                                                                                                                                                                                                                                  |

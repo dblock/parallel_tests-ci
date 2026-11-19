@@ -4,6 +4,7 @@ require 'digest'
 require 'fileutils'
 require 'json'
 require 'parallel_tests'
+require 'parallel_tests/rspec/runner'
 require 'rbconfig'
 require 'shellwords'
 
@@ -70,6 +71,14 @@ module ParallelTests
 
       def matrix
         (1..plan.fetch('shards')).map { |shard| { shard: shard } }
+      end
+
+      def file_matrix
+        groups = ParallelTests::RSpec::Runner.tests_in_groups(
+          plan.fetch('sizes').keys, plan.fetch('shards'),
+          { group_by: plan.fetch('group_by').to_sym, runtime_log: history_path }
+        )
+        groups.reject(&:empty?).map.with_index(1) { |files, shard| { shard: shard, files: files } }
       end
 
       def fingerprint

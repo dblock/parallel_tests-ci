@@ -29,6 +29,9 @@ Dir.mktmpdir('parallel-tests-ci-installed') do |directory|
     end
     run = ParallelTests::CI::Run.new('tmp/parallel_tests_ci/plan')
     abort 'Installed package lost nested JSON arguments' unless run.plan.fetch('rspec_options') == ['--seed', '123']
+    unless run.file_matrix.flat_map { |entry| entry.fetch(:files) }.sort == %w[spec/first.rb spec/second.rb]
+      abort 'Installed package did not assign every file to the standalone matrix'
+    end
     path = [File.dirname(Gem.bin_path('rspec-core', 'rspec')), ENV.fetch('PATH')].join(File::PATH_SEPARATOR)
     matrix.each do |entry|
       shard = entry.fetch('shard')

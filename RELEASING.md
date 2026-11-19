@@ -48,3 +48,7 @@ Released changelog headings use `## VERSION (YYYY/MM/DD)`, newest first. Keep an
 Dispatch `release.yml` on `master` only after authorization and setup. It validates the prepared tree, retains the exact gem/recovery context, publishes that artifact, pushes release refs, creates the GitHub Release, and prepares the next development version.
 
 Verify registry version/archive integrity, matching remote tag/commit, GitHub Release, and next development state. If interrupted, inspect those states and the retained artifact, then complete only missing steps. Delayed registry visibility is not permission to republish. Never overwrite published versions or move release tags; do not put long-lived RubyGems keys in repository secrets.
+
+## GitHub Marketplace
+
+The root `action.yml` describes the standalone shard matrix action, not the reusable workflow. With separate authorization, follow [GitHub's Marketplace publishing instructions](https://docs.github.com/en/actions/how-tos/create-and-publish-actions/publish-in-github-marketplace) for a release tag containing that file. The owner must accept the Marketplace Developer Agreement. The gem release workflow does not create a Marketplace listing.

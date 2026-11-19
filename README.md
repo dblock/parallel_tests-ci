@@ -36,6 +36,10 @@ jobs:
 
 Ruby comes from your version file; workers use Ubuntu by default. The first run groups by file size. Successful default-branch pushes supply timings for later runs; PRs read them without updating history. Jobs appear as `Test / 1 of 8`, capped at matching file count. Keep gem and workflow versions matched.
 
+### Standalone Shard Matrix Action
+
+If you manage your own CI jobs, see the [standalone test workflow](.github/workflows/test-standalone.yml) for how to plan shards and run the assigned specs. Replace `uses: ./` with `uses: dblock/parallel_tests-ci@<ref>` in your workflow.
+
 ## Configuration
 
 ### Runners and Execution

@@ -31,6 +31,24 @@ RSpec.describe ParallelTests::CI::Run, :aggregate_failures do
     expect(prepared.plan.fetch('group_by')).to eq('filesize')
   end
 
+  it 'assigns each cold-start file to a nonempty matrix entry' do
+    prepared = described_class.prepare(directory: 'plan', pattern: 'spec/*.rb', shards: 8)
+    entries = prepared.file_matrix
+    expect(entries.map { |entry| entry.fetch(:shard) }).to eq([1, 2])
+    expect(entries.flat_map { |entry| entry.fetch(:files) }.sort).to eq(%w[spec/first.rb spec/second.rb])
+    expect(entries.map { |entry| entry.fetch(:files).size }).to eq([1, 1])
+  end
+
+  it 'assigns files using historical durations rather than file sizes' do
+    { 'first' => 100, 'second' => 1, 'third' => 1, 'fourth' => 100 }.each do |name, bytes|
+      File.write("spec/#{name}.rb", ' ' * bytes)
+    end
+    File.write('baseline.log', "spec/first.rb:8\nspec/second.rb:5\nspec/third.rb:4\nspec/fourth.rb:1\n")
+    prepared = described_class.prepare(directory: 'plan', pattern: 'spec/*.rb', shards: 2, history: 'baseline.log')
+    expected = [%w[spec/first.rb spec/fourth.rb], %w[spec/second.rb spec/third.rb]]
+    expect(prepared.file_matrix.map { |entry| entry.fetch(:files) }).to match_array(expected)
+  end
+
   [0, -1, 257, 1.5, 'invalid'].each do |count|
     it "rejects invalid shard count #{count.inspect}" do
       expect { described_class.prepare(directory: 'plan', shards: count) }.to raise_error(ArgumentError)

@@ -1,0 +1,34 @@
+name: Parallel Tests CI Shard Matrix
+description: Assign RSpec files to GitHub Actions matrix jobs using file sizes or past runtimes.
+branding:
+  icon: grid
+  color: green
+inputs:
+  pattern:
+    description: Repository-relative glob for RSpec files.
+    default: 'spec/**/*_spec.rb'
+  shards:
+    description: Maximum number of shards, from 1 to 256.
+    default: '4'
+  runtime-log:
+    description: Optional path to a local parallel_tests runtime log.
+    default: ''
+outputs:
+  matrix:
+    description: JSON array of entries with a shard number and its assigned file paths.
+    value: ${{ steps.plan.outputs.matrix }}
+  group-by:
+    description: Grouping method, either filesize or runtime.
+    value: ${{ steps.plan.outputs.group-by }}
+runs:
+  using: composite
+  steps:
+    - name: Plan RSpec Shards
+      id: plan
+      shell: bash
+      env:
+        PTCI_ACTION_PATH: ${{ github.action_path }}
+        PTCI_PATTERN: ${{ inputs.pattern }}
+        PTCI_SHARDS: ${{ inputs.shards }}
+        PTCI_RUNTIME_LOG: ${{ inputs.runtime-log }}
+      run: bundle exec ruby "$PTCI_ACTION_PATH/script/shard_matrix.rb"
