@@ -11,6 +11,7 @@
 - [#28](https://github.com/dblock/parallel_tests-ci/pull/28): Shorten the project guides and README demo - [@dblock](https://github.com/dblock).
 - [#30](https://github.com/dblock/parallel_tests-ci/pull/30): Add automatic Minitest sharding and timing history. RSpec checks now include `Shard Tests` in their names; update any required checks when upgrading - [@dblock](https://github.com/dblock).
 - [#31](https://github.com/dblock/parallel_tests-ci/pull/31): Separate framework runners from the shared sharding lifecycle - [@dblock](https://github.com/dblock).
+- [#33](https://github.com/dblock/parallel_tests-ci/pull/33): Enable Minitest timing collection with a Gemfile require and detect the loaded framework by default - [@dblock](https://github.com/dblock).
 - Your contribution here.
 
 ## 0.1.0 (2026/11/19)

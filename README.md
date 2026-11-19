@@ -18,9 +18,17 @@ gem 'parallel_tests-ci', '0.1.0', require: false
 
 Ruby comes from your version file; workers use Ubuntu by default. The first run groups by file size. Successful default-branch pushes supply timings for later runs; PRs read them without updating history. Shard count is capped at the number of matching files. Keep gem and workflow versions matched.
 
+With a gem version that supports framework detection, `require 'parallel_tests-ci'` (including the default `Bundler.require` behavior) selects the framework already loaded. It raises `LoadError` if neither or both are loaded. Use an explicit require below to avoid depending on load order or to select a framework when both are loaded.
+
 ### RSpec
 
 RSpec matches `spec/**/*_spec.rb` by default and records timings automatically; no changes to `spec_helper.rb` are needed.
+
+If your test boot calls `Bundler.require` and you want to select RSpec explicitly, use this Gemfile entry with a version that provides it:
+
+```ruby
+gem 'parallel_tests-ci', require: 'parallel_tests/ci/rspec'
+```
 
 Add `.github/workflows/test.yml`:
 
@@ -46,14 +54,13 @@ With `v0.1.0`, workers appear as `Test / 1 of 8`.
 
 Use `.github/workflows/minitest.yml` instead of `rspec.yml` with a matching gem version that includes Minitest support. The default pattern is `test/**/*_test.rb`; `rspec-options` is not available.
 
-In the `test_helper.rb` loaded by your tests, add this after loading Minitest:
+If your test boot calls `Bundler.require`, use this Gemfile entry instead of `require: false`:
 
 ```ruby
-if (path = ENV.fetch('PTCI_RUNTIME_LOG', nil))
-  require 'parallel_tests/test/runtime_logger'
-  ParallelTests::Test::RuntimeLogger.logfile = path
-end
+gem 'parallel_tests-ci', require: 'parallel_tests/ci/minitest'
 ```
+
+If your suite only uses `bundle exec`, add `require 'parallel_tests/ci/minitest'` to `test_helper.rb` instead. Either way, the timing hook only activates in shard workers.
 
 ### Standalone Shard Matrix Action
 

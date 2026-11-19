@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'parallel_tests/ci/github'
+require 'open3'
 require 'tmpdir'
 
 installation = File.realpath(ARGV.fetch(0))
@@ -43,7 +44,65 @@ Dir.mktmpdir('parallel-tests-ci-installed') do |directory|
            File.readlines('observed.txt', chomp: true).sort == %w[first second]
       abort 'Installed package did not execute every spec exactly once'
     end
+
+    File.write('Gemfile', <<~GEMFILE)
+      source 'https://rubygems.org'
+      gem 'minitest', '~> 5.27', require: false
+      gem 'parallel_tests-ci', '#{package.version}', require: 'parallel_tests/ci/minitest'
+    GEMFILE
+    boot = 'require "bundler"; Bundler.require'
+    [nil, ''].each do |value|
+      unless system({ 'PTCI_RUNTIME_LOG' => value }, Gem.ruby, '-e', "#{boot}; abort if defined?(Minitest)")
+        abort 'Gemfile require loaded Minitest without a timing output path'
+      end
+    end
+    File.write('timed_test.rb', <<~RUBY)
+      class Example < Minitest::Test
+        def test_timing
+          assert true
+        end
+      end
+    RUBY
+    timed_run = "#{boot}; require_relative 'timed_test'; exit Minitest.run"
+    unless system({ 'PTCI_RUNTIME_LOG' => 'minitest.log' }, Gem.ruby, '-e', timed_run) &&
+           ParallelTests::CI::RuntimeLog.read('minitest.log').keys == ['timed_test.rb']
+      abort 'Gemfile require did not record Minitest timings'
+    end
+
+    File.write('Gemfile', <<~GEMFILE)
+      source 'https://rubygems.org'
+      gem 'minitest', '~> 5.27'
+      gem 'parallel_tests-ci', '#{package.version}'
+    GEMFILE
+    unless system({ 'PTCI_RUNTIME_LOG' => 'detected.log' }, Gem.ruby, '-e', timed_run) &&
+           ParallelTests::CI::RuntimeLog.read('detected.log').keys == ['timed_test.rb']
+      abort 'Default Gemfile require did not detect Minitest and record timings'
+    end
+    unless system(Gem.ruby, '-r', 'rspec', '-r', 'parallel_tests-ci', '-e', '')
+      abort 'Default require did not accept RSpec'
+    end
+
+    File.write('Gemfile', <<~GEMFILE)
+      source 'https://rubygems.org'
+      gem 'rspec'
+      gem 'minitest', '~> 5.27'
+      gem 'parallel_tests-ci', '#{package.version}', require: 'parallel_tests/ci/rspec'
+    GEMFILE
+    no_minitest_hook = "#{boot}; abort if defined?(ParallelTests::Test::RuntimeLogger)"
+    unless system({ 'PTCI_RUNTIME_LOG' => 'unused.log' }, Gem.ruby, '-e', no_minitest_hook)
+      abort 'Explicit RSpec require failed with both frameworks loaded'
+    end
+
+    {
+      [] => 'Neither RSpec nor Minitest is loaded',
+      %w[-r rspec -r minitest] => 'Both RSpec and Minitest are loaded'
+    }.each do |requires, message|
+      output, status = Open3.capture2e(Gem.ruby, *requires, '-r', 'parallel_tests-ci', '-e', '')
+      next if !status.success? && output.include?(message)
+
+      abort "Expected default require to fail: #{message}\n#{output}"
+    end
   end
 end
 
-puts 'Installed package executed and merged both shards successfully.'
+puts 'Installed package executed and collected RSpec and Minitest timings successfully.'

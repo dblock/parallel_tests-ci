@@ -6,7 +6,7 @@ The gem validates plans and timing reports; `.github/workflows/shards.yml` handl
 
 Scope is RSpec and Minitest on GitHub Actions, without a hosted service, public CLI, or other-provider abstraction. Automatic shard sizing is not implemented.
 
-`rspec.yml` and `minitest.yml` pass their framework, file pattern, and artifact prefix to `shards.yml`. The immutable plan selects `parallel_test` for Minitest. Workers send `PTCI_RUNTIME_LOG` to the test process so the upstream Minitest logger writes measurements separately from restored history. Minitest 6 changed the runner hooks used by that logger; use Minitest 5.
+`rspec.yml` and `minitest.yml` pass their framework, file pattern, and artifact prefix to `shards.yml`. The immutable plan selects `parallel_test` for Minitest. The `parallel_tests/ci/minitest` entry point uses `PTCI_RUNTIME_LOG` to enable the upstream logger and write measurements separately from restored history. Minitest 6 changed the runner hooks used by that logger; use Minitest 5.
 
 Each runner defines its default file glob, test command, and timing output. The base runner builds and executes the shared `parallel_tests` command. The run lifecycle selects files, chooses a grouping mode, and validates reports; `parallel_tests` still decides which files belong to each shard. GitHub matrix, artifact, and trust rules do not depend on the runner. Runners are not a public extension API.
 
