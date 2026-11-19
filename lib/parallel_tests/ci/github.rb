@@ -18,9 +18,7 @@ module ParallelTests
       end
 
       def prefix(value)
-        unless value.match?(/\A[a-zA-Z0-9][a-zA-Z0-9_-]*\z/)
-          raise ArgumentError, 'Artifact prefix must contain only letters, numbers, underscores, and hyphens'
-        end
+        raise ArgumentError, 'Artifact prefix must contain only letters, numbers, underscores, and hyphens' unless value.match?(/\A[a-zA-Z0-9][a-zA-Z0-9_-]*\z/)
 
         value
       end

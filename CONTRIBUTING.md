@@ -14,7 +14,7 @@ bundle install
 | ---                                  | ---                                                                                   |
 | `bundle exec rake`                   | Specs and lint.                                                                       |
 | `bundle exec rake spec`              | Unit/integration specs and line/branch coverage.                                      |
-| `bundle exec rake lint`              | Ruby, Markdown, embedded Ruby, and spelling.                                          |
+| `bundle exec rake lint`              | Ruby, Markdown, YAML, embedded Ruby, and spelling.                                    |
 | `bundle exec rake package`           | Build and inspect the gem; install that exact archive and execute/collect two shards. |
 | `actionlint .github/workflows/*.yml` | GitHub Actions syntax and expressions.                                                |
 

@@ -12,7 +12,7 @@ Bundler::GemHelper.install_tasks
 RSpec::Core::RakeTask.new(:spec)
 RuboCop::RakeTask.new(:rubocop)
 
-desc 'Lint Ruby, Markdown, and spelling'
+desc 'Lint Ruby, Markdown, YAML, and spelling'
 task lint: :rubocop
 
 desc 'Build, inspect, and load the actual gem in a temporary consumer'

@@ -6,9 +6,7 @@ require 'tmpdir'
 
 installation = File.realpath(ARGV.fetch(0))
 package = Gem.loaded_specs.fetch('parallel_tests-ci')
-unless File.realpath(package.full_gem_path).start_with?("#{installation}/")
-  abort 'Consumer loaded source instead of the installed archive'
-end
+abort 'Consumer loaded source instead of the installed archive' unless File.realpath(package.full_gem_path).start_with?("#{installation}/")
 
 fixture = File.expand_path('../suite', __dir__)
 Dir.mktmpdir('parallel-tests-ci-installed') do |directory|
@@ -30,9 +28,7 @@ Dir.mktmpdir('parallel-tests-ci-installed') do |directory|
     end
     run = ParallelTests::CI::Run.new('tmp/parallel_tests_ci/plan')
     abort 'Installed package lost nested JSON arguments' unless run.plan.fetch('rspec_options') == ['--seed', '123']
-    unless run.file_matrix.flat_map { |entry| entry.fetch(:files) }.sort == %w[spec/first.rb spec/second.rb]
-      abort 'Installed package did not assign every file to the standalone matrix'
-    end
+    abort 'Installed package did not assign every file to the standalone matrix' unless run.file_matrix.flat_map { |entry| entry.fetch(:files) }.sort == %w[spec/first.rb spec/second.rb]
     path = [File.dirname(Gem.bin_path('rspec-core', 'rspec')), ENV.fetch('PATH')].join(File::PATH_SEPARATOR)
     matrix.each do |entry|
       shard = entry.fetch('shard')
@@ -52,9 +48,7 @@ Dir.mktmpdir('parallel-tests-ci-installed') do |directory|
     GEMFILE
     boot = 'require "bundler"; Bundler.require'
     [nil, ''].each do |value|
-      unless system({ 'PTCI_RUNTIME_LOG' => value }, Gem.ruby, '-e', "#{boot}; abort if defined?(Minitest)")
-        abort 'Gemfile require loaded Minitest without a timing output path'
-      end
+      abort 'Gemfile require loaded Minitest without a timing output path' unless system({ 'PTCI_RUNTIME_LOG' => value }, Gem.ruby, '-e', "#{boot}; abort if defined?(Minitest)")
     end
     File.write('timed_test.rb', <<~RUBY)
       class Example < Minitest::Test
@@ -78,9 +72,7 @@ Dir.mktmpdir('parallel-tests-ci-installed') do |directory|
            ParallelTests::CI::RuntimeLog.read('detected.log').keys == ['timed_test.rb']
       abort 'Default Gemfile require did not detect Minitest and record timings'
     end
-    unless system(Gem.ruby, '-r', 'rspec', '-r', 'parallel_tests-ci', '-e', '')
-      abort 'Default require did not accept RSpec'
-    end
+    abort 'Default require did not accept RSpec' unless system(Gem.ruby, '-r', 'rspec', '-r', 'parallel_tests-ci', '-e', '')
 
     File.write('Gemfile', <<~GEMFILE)
       source 'https://rubygems.org'
@@ -89,9 +81,7 @@ Dir.mktmpdir('parallel-tests-ci-installed') do |directory|
       gem 'parallel_tests-ci', '#{package.version}', require: 'parallel_tests/ci/rspec'
     GEMFILE
     no_minitest_hook = "#{boot}; abort if defined?(ParallelTests::Test::RuntimeLogger)"
-    unless system({ 'PTCI_RUNTIME_LOG' => 'unused.log' }, Gem.ruby, '-e', no_minitest_hook)
-      abort 'Explicit RSpec require failed with both frameworks loaded'
-    end
+    abort 'Explicit RSpec require failed with both frameworks loaded' unless system({ 'PTCI_RUNTIME_LOG' => 'unused.log' }, Gem.ruby, '-e', no_minitest_hook)
 
     {
       [] => 'Neither RSpec nor Minitest is loaded',
