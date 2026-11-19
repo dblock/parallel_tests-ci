@@ -1,12 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="640" height="386" viewBox="0 0 640 386" role="img" aria-labelledby="title description">
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="348" viewBox="0 0 640 348" role="img" aria-labelledby="title description">
   <title id="title">Slowest Worker RSpec Time</title>
-  <desc id="description">RSpec execution only, excluding setup and file loading. One serial worker: 395 seconds. Eight workers with custom sharding in PR 178: 61.62 seconds. Parallel tests alone in PR 181: 70.71 seconds. Parallel Tests CI cold: PR 185, 79.11 seconds; PR 186, 79.03 seconds. Warm: PR 187, 57.59 seconds for the slowest successful worker; PR 188, 62.90 seconds.</desc>
-  <rect width="640" height="386" rx="12" fill="#ffffff"/>
+  <desc id="description">RSpec execution only, excluding setup and file loading. One serial worker: 395 seconds. Eight workers with custom sharding in PR 178: 61.62 seconds. Parallel tests alone in PR 181: 70.71 seconds. Parallel Tests CI cold: PR 185, 79.11 seconds; PR 186, 79.03 seconds. Warm: PR 187, 57.59 seconds for the slowest successful worker.</desc>
+  <rect width="640" height="348" rx="12" fill="#ffffff"/>
   <g font-family="DejaVu Sans, sans-serif">
     <text x="24" y="33" fill="#24292e" font-size="19" font-weight="bold">Slowest Worker RSpec Time</text>
     <text x="24" y="54" fill="#57606a" font-size="12">RSpec only; no setup or loading</text>
     <g stroke="#eaeef2" stroke-width="1">
-      <path d="M128 72V338 M228 72V338 M328 72V338 M428 72V338 M528 72V338"/>
+      <path d="M128 72V300 M228 72V300 M328 72V300 M428 72V300 M528 72V300"/>
     </g>
     <g font-size="13" fill="#24292e">
       <text x="24" y="94">Serial</text>
@@ -15,7 +15,6 @@
       <text x="24" y="208">#185 Cold</text>
       <text x="24" y="246">#186 Cold</text>
       <text x="24" y="284">#187 Warm</text>
-      <text x="24" y="322">#188 Warm</text>
     </g>
     <rect x="128" y="77" width="329.167" height="24" rx="4" fill="#4b5563"/>
     <rect x="128" y="115" width="51.350" height="24" rx="4" fill="#6b7280"/>
@@ -25,7 +24,6 @@
       <rect x="128" y="229" width="65.858" height="24" rx="4"/>
     </g>
     <rect x="128" y="267" width="47.992" height="24" rx="4" fill="#28A745"/>
-    <rect x="128" y="305" width="52.417" height="24" rx="4" fill="#34D058"/>
     <g font-size="13" font-weight="bold" fill="#24292e">
       <text x="467.167" y="94">395s</text>
       <text x="189.350" y="132">61.62s</text>
@@ -33,14 +31,13 @@
       <text x="203.925" y="208">79.11s</text>
       <text x="203.858" y="246">79.03s</text>
       <text x="185.992" y="284">57.59s</text>
-      <text x="190.417" y="322">62.90s</text>
     </g>
     <g font-size="11" fill="#57606a" text-anchor="middle">
-      <text x="128" y="361">0</text>
-      <text x="228" y="361">2m</text>
-      <text x="328" y="361">4m</text>
-      <text x="428" y="361">6m</text>
-      <text x="528" y="361">8m</text>
+      <text x="128" y="323">0</text>
+      <text x="228" y="323">2m</text>
+      <text x="328" y="323">4m</text>
+      <text x="428" y="323">6m</text>
+      <text x="528" y="323">8m</text>
     </g>
   </g>
 </svg>
