@@ -5,15 +5,12 @@ require 'fileutils'
 require 'json'
 require 'parallel_tests'
 require 'parallel_tests/rspec/runner'
-require 'rbconfig'
-require 'shellwords'
+require_relative 'runners'
 
 module ParallelTests
   module CI
     # A shared immutable plan; parallel_tests remains the only partitioner.
     class Run
-      PATTERNS = { 'rspec' => 'spec/**/*_spec.rb', 'minitest' => 'test/**/*_test.rb' }.freeze
-
       attr_reader :directory, :plan
 
       def self.prepare(directory:, history: nil, **settings)
@@ -38,13 +35,11 @@ module ParallelTests
       end
 
       def self.selection(pattern, framework)
-        default_pattern = PATTERNS.fetch(framework) { raise ArgumentError, "Unsupported test framework: #{framework}" }
-        pattern ||= default_pattern
+        runner = Runners.fetch(framework)
+        pattern ||= runner.default_pattern
         sizes = discover(pattern)
-        if sizes.empty?
-          kind = framework == 'rspec' ? 'spec' : 'test'
-          raise ArgumentError, "No #{kind} files match #{pattern.inspect}"
-        end
+        raise ArgumentError, "No #{runner.file_kind} files match #{pattern.inspect}" if sizes.empty?
+
         plan = { 'pattern' => pattern, 'sizes' => sizes }
         plan['framework'] = framework unless framework == 'rspec'
         plan
@@ -114,10 +109,7 @@ module ParallelTests
       def collect(directory:, output:)
         paths = latest_results(directory)
         combined = RuntimeLog.merge(paths, files: plan.fetch('sizes').keys)
-        if combined.empty?
-          hint = minitest? ? '; configure the Minitest runtime logger in your test helper' : ''
-          raise ArgumentError, "No test timings were recorded#{hint}"
-        end
+        raise ArgumentError, "No test timings were recorded#{runner.timing_hint}" if combined.empty?
 
         FileUtils.mkdir_p(File.dirname(output))
         RuntimeLog.write(output, combined)
@@ -142,36 +134,22 @@ module ParallelTests
         File.write(File.join(directory, 'runtime.log'), '')
       end
 
-      def execute(command, env)
-        pid = Process.spawn(env, *command)
-        _pid, status = Process.wait2(pid)
-        status.exitstatus || (128 + status.termsig)
-      end
-
       def history_path
         File.join(directory, 'runtime.log')
       end
 
-      def minitest?
-        plan['framework'] == 'minitest'
+      def runner
+        Runners.fetch(plan.fetch('framework', 'rspec'))
       end
 
       def execute_shard(index, output, env)
-        if minitest?
-          execute(command('parallel_test', index, []), env.merge('PTCI_RUNTIME_LOG' => output))
-        else
-          options = [*plan.fetch('rspec_options'), '--format', 'progress',
-                     '--format', 'ParallelTests::RSpec::RuntimeLogger', '--out', output]
-          execute(command('parallel_rspec', index, options), env)
-        end
+        files = plan.fetch('sizes').keys.map { |file| "./#{file}" }
+        runner.run(shard_flags(index), files: files, options: plan.fetch('rspec_options'), output: output, env: env)
       end
 
-      def command(executable, index, options)
-        [RbConfig.ruby, Gem.bin_path('parallel_tests', executable),
-         '-n', plan.fetch('shards').to_s, '--only-group', index.to_s,
-         '--group-by', plan.fetch('group_by'), '--runtime-log', history_path,
-         '--test-options', Shellwords.join(options), '--',
-         *plan.fetch('sizes').keys.map { |file| "./#{file}" }]
+      def shard_flags(index)
+        ['-n', plan.fetch('shards').to_s, '--only-group', index.to_s,
+         '--group-by', plan.fetch('group_by'), '--runtime-log', history_path]
       end
 
       def latest_results(directory)

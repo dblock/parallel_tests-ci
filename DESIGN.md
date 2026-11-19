@@ -8,6 +8,8 @@ Scope is RSpec and Minitest on GitHub Actions, without a hosted service, public 
 
 `rspec.yml` and `minitest.yml` pass their framework, file pattern, and artifact prefix to `shards.yml`. The immutable plan selects `parallel_test` for Minitest. Workers send `PTCI_RUNTIME_LOG` to the test process so the upstream Minitest logger writes measurements separately from restored history. Minitest 6 changed the runner hooks used by that logger; use Minitest 5.
 
+Each runner defines its default file glob, test command, and timing output. The base runner builds and executes the shared `parallel_tests` command. The run lifecycle selects files, chooses a grouping mode, and validates reports; `parallel_tests` still decides which files belong to each shard. GitHub matrix, artifact, and trust rules do not depend on the runner. Runners are not a public extension API.
+
 ## Standalone Shard Matrix Action
 
 The [standalone action](README.md#standalone-shard-matrix-action) uses the same file discovery, timing validation, and upstream partitioner as the reusable workflow. It does not create jobs, run tests, or manage timing artifacts.
