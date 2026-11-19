@@ -36,6 +36,8 @@ Missing, expired, malformed, or inaccessible history falls back centrally to fil
 
 Official artifact actions handle transport. Retention is configured separately for run artifacts and trusted baselines; repository limits apply.
 
+Extra artifact paths can include hidden files and are collected even after a worker fails. Use a unique prefix for each workflow call, with only letters, numbers, underscores, and hyphens.
+
 ## Workflow Inputs
 
 See [Configuration](README.md#configuration) for every input and default. Keep gem/workflow versions matched. Ruby defaults to `.ruby-version`, `.tool-versions`, or `mise.toml`; spec patterns use Ruby globs, including braces.
@@ -56,7 +58,7 @@ Job timeouts include setup and remain subject to runner limits. `max-parallel` l
 
 For example, `worker-name: 'RSpec {shard.number}/{shard.count} ({plan.group_by})'` yields `Test / RSpec 1/8 (runtime)`. GitHub supplies the caller prefix. Caller expressions resolve first but cannot access the internal worker matrix; template substitution is literal, without recursion.
 
-Braces are reserved: unknown, empty, nested, or unmatched placeholders fail preparation. Labels live only in `matrix.entry.name`, not the plan or fingerprint.
+An empty `worker-name` uses the default. Braces are reserved: unknown, empty, nested, or unmatched placeholders fail preparation. Labels live only in `matrix.entry.name`, not the plan or fingerprint.
 
 ### Environments and Setup
 
