@@ -27,7 +27,9 @@ task package: :build do
     Bundler.with_unbundled_env do
       env = { 'GEM_HOME' => directory, 'GEM_PATH' => [directory, *Gem.path].join(File::PATH_SEPARATOR) }
       sh env, Gem.ruby, '-S', 'gem', 'install', '--local', '--no-document', artifact
-      sh env, Gem.ruby, 'spec/fixtures/consumer/verify.rb', directory
+      %w[rspec minitest frameworks].each do |check|
+        sh env, Gem.ruby, "spec/fixtures/consumer/verify_#{check}.rb", directory
+      end
     end
   end
 end
