@@ -13,6 +13,14 @@ AllCops:
     - 'pkg/**/*'
     - 'vendor/**/*'
 
+Naming/FileName:
+  inherit_mode:
+    merge:
+      - Exclude
+  Exclude:
+    # Bundler requires the gem name by default.
+    - lib/parallel_tests-ci.rb
+
 Markdown/HeadingCapitalization:
   Enabled: true
   Style: title_case
