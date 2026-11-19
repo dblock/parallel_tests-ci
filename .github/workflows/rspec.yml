@@ -48,7 +48,7 @@ on:
         type: string
         default: spec/**/*_spec.rb
       test-options:
-        description: JSON array of additional arguments for the selected test framework.
+        description: JSON array of additional RSpec arguments.
         type: string
         default: '[]'
       environment:
