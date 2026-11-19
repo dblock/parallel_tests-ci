@@ -9,17 +9,11 @@ Consumer.in_temporary_directory do
     abort 'Default require did not accept RSpec'
   end
 
-  File.write('Gemfile', <<~GEMFILE)
-    source 'https://rubygems.org'
-    gem 'rspec'
-    gem 'minitest', '~> 5.27'
-    gem 'parallel_tests-ci', '#{package.version}', require: 'parallel_tests/ci/rspec'
-  GEMFILE
+  FileUtils.cp(File.expand_path('framework_explicit/Gemfile', __dir__), 'Gemfile')
   boot = 'require "bundler"; Bundler.require'
   no_minitest_hook = "#{boot}; abort if defined?(ParallelTests::Test::RuntimeLogger)"
-  unless system({ 'PTCI_RUNTIME_LOG' => 'unused.log' }, Gem.ruby, '-e', no_minitest_hook)
-    abort 'Explicit RSpec require failed with both frameworks loaded'
-  end
+  env = { 'PTCI_RUNTIME_LOG' => 'unused.log', 'PTCI_CONSUMER_VERSION' => package.version.to_s }
+  abort 'Explicit RSpec require failed with both frameworks loaded' unless system(env, Gem.ruby, '-e', no_minitest_hook)
 
   {
     [] => 'Neither RSpec nor Minitest is loaded',
