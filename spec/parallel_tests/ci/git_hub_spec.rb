@@ -119,7 +119,7 @@ RSpec.describe ParallelTests::CI::GitHub, :aggregate_failures do
 
   it 'falls back without requiring history access when GitHub rejects the request' do
     allow(Open3).to receive(:capture3).and_return(['', 'forbidden', instance_double(Process::Status, success?: false)])
-    expect { described_class.find_history(inputs: inputs) }.to output(/using file sizes: forbidden/).to_stderr
+    expect { described_class.find_history(inputs: inputs) }.to output(/Timing history unavailable: forbidden/).to_stderr
     expect(outputs).to be_empty
   end
 

@@ -92,6 +92,16 @@ If you manage your own CI jobs, see the [standalone test workflow](.github/workf
 | `before-bundle` | Empty                             | Shell setup before gem install in all jobs. |
 | `setup`         | Empty                             | Shell setup before specs in each worker.    |
 
+### Shard Grouping
+
+| Input      | Default | Purpose                                  |
+| ---        | ---     | ---                                      |
+| `group-by` | `auto`  | Choose `auto`, `filesize`, or `runtime`. |
+
+- `auto`: Use runtime history when usable timings cover at least half the selected files. Otherwise, group by file size.
+- `filesize`: Group by file size without reading timing history. Reusable workflows still collect fresh timings.
+- `runtime`: Group by runtime. Planning fails if usable timings cover fewer than half the selected files.
+
 ### Artifacts
 
 | Input                     | Default             | Purpose                                             |

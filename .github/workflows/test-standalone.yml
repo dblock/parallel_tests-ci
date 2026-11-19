@@ -24,12 +24,20 @@ jobs:
         with:
           ruby-version: '4.0'
           bundler-cache: true
+      - name: Write Fixture Timings
+        run: printf 'spec/fixtures/suite/first.rb:4\nspec/fixtures/suite/second.rb:2\n' > "$RUNNER_TEMP/fixture-timings.log"
       - name: Plan Shards
         id: plan
         uses: ./
         with:
           pattern: spec/fixtures/suite/*.rb
           shards: '2'
+          group-by: runtime
+          runtime-log: ${{ runner.temp }}/fixture-timings.log
+      - name: Check Selected Grouping
+        env:
+          GROUP_BY: ${{ steps.plan.outputs.group-by }}
+        run: test "$GROUP_BY" = runtime
 
   run_standalone:
     name: Run Standalone Shard ${{ matrix.entry.shard }}

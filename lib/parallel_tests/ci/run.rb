@@ -13,10 +13,11 @@ module ParallelTests
     class Run
       attr_reader :directory, :plan
 
-      def self.prepare(directory:, history: nil, **settings)
+      def self.prepare(directory:, history: nil, group_by: 'auto', **settings)
         plan = configuration(**settings)
-        known = history_for(history, plan.fetch('sizes').keys)
-        plan['group_by'] = grouping(known.size, plan.fetch('sizes').size)
+        files = plan.fetch('sizes').keys
+        known = group_by == 'filesize' ? {} : history_for(history, files)
+        plan['group_by'] = grouping(group_by, known.size, files.size)
         FileUtils.mkdir_p(directory)
         File.write(File.join(directory, 'plan.json'), JSON.generate(plan))
         RuntimeLog.write(File.join(directory, 'runtime.log'), known)
@@ -45,8 +46,16 @@ module ParallelTests
         plan
       end
 
-      def self.grouping(known, total)
-        known.positive? && known * 2 >= total ? 'runtime' : 'filesize'
+      def self.grouping(requested, known, total)
+        sufficient = known * 2 >= total
+        return sufficient ? 'runtime' : 'filesize' if requested == 'auto'
+        return requested if requested == 'filesize' || (requested == 'runtime' && sufficient)
+
+        if requested == 'runtime'
+          raise ArgumentError, 'Runtime grouping requires usable timings for at least half the selected files'
+        end
+
+        raise ArgumentError, "Invalid group-by #{requested.inspect}; expected auto, filesize, or runtime"
       end
 
       def self.positive_integer(value)

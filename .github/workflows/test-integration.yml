@@ -52,6 +52,7 @@ jobs:
       fetch-depth: 0
       ruby-version: '4.0'
       bundler-cache: ${{ matrix.entry.cache }}
+      group-by: filesize
       shards: 2
       pattern: ${{ matrix.entry.pattern }}
       artifact-prefix: integration-configuration-${{ matrix.entry.framework }}-${{ matrix.entry.kernel }}

@@ -24,7 +24,7 @@ The [standalone action](README.md#standalone-shard-matrix-action) uses the same 
 | Test    | Run each planned shard and mark it successful only if it passes. |
 | Collect | Validate and combine all shards' timings into a baseline.        |
 
-Prepare looks for a retained baseline among the caller workflow's latest 20 successful default-branch pushes. It rejects empty selections, caps the requested 1-256 shards at the file count, and writes the matrix to `$GITHUB_OUTPUT`. Missing, expired, malformed, or inaccessible history falls back to file sizes. Runtime grouping drops stale paths and requires timings for at least half the selected files; upstream estimates unknown durations. Per-file history survives worker-count changes.
+Unless `group-by` is `filesize`, Prepare looks for a retained baseline among the caller workflow's latest 20 successful default-branch pushes. It rejects empty selections, caps the requested 1-256 shards at the file count, and writes the matrix to `$GITHUB_OUTPUT`. Runtime grouping drops stale paths and requires timings for at least half the selected files; upstream estimates unknown durations. If there are insufficient timings, `auto` falls back to file sizes and `runtime` fails. Per-file history survives worker-count changes.
 
 ### Plans and Retries
 
