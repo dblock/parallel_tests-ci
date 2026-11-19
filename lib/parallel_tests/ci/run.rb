@@ -12,10 +12,12 @@ module ParallelTests
   module CI
     # A shared immutable plan; parallel_tests remains the only partitioner.
     class Run
+      PATTERNS = { 'rspec' => 'spec/**/*_spec.rb', 'minitest' => 'test/**/*_test.rb' }.freeze
+
       attr_reader :directory, :plan
 
-      def self.prepare(directory:, pattern: 'spec/**/*_spec.rb', shards: 4, history: nil, rspec_options: [])
-        plan = configuration(pattern, shards, rspec_options)
+      def self.prepare(directory:, history: nil, **settings)
+        plan = configuration(**settings)
         known = history_for(history, plan.fetch('sizes').keys)
         plan['group_by'] = grouping(known.size, plan.fetch('sizes').size)
         FileUtils.mkdir_p(directory)
@@ -24,17 +26,28 @@ module ParallelTests
         new(directory)
       end
 
-      def self.configuration(pattern, shards, options)
+      def self.configuration(pattern: nil, shards: 4, rspec_options: [], framework: 'rspec')
         count = positive_integer(shards)
         raise ArgumentError, 'GitHub Actions allows at most 256 shards' if count > 256
-        unless options.is_a?(Array) && options.all?(String)
+        unless rspec_options.is_a?(Array) && rspec_options.all?(String)
           raise ArgumentError, 'RSpec options must be an array of strings'
         end
 
-        sizes = discover(pattern)
-        raise ArgumentError, "No spec files match #{pattern.inspect}" if sizes.empty?
+        plan = selection(pattern, framework)
+        plan.merge('shards' => [count, plan.fetch('sizes').size].min, 'rspec_options' => rspec_options)
+      end
 
-        { 'pattern' => pattern, 'sizes' => sizes, 'shards' => [count, sizes.size].min, 'rspec_options' => options }
+      def self.selection(pattern, framework)
+        default_pattern = PATTERNS.fetch(framework) { raise ArgumentError, "Unsupported test framework: #{framework}" }
+        pattern ||= default_pattern
+        sizes = discover(pattern)
+        if sizes.empty?
+          kind = framework == 'rspec' ? 'spec' : 'test'
+          raise ArgumentError, "No #{kind} files match #{pattern.inspect}"
+        end
+        plan = { 'pattern' => pattern, 'sizes' => sizes }
+        plan['framework'] = framework unless framework == 'rspec'
+        plan
       end
 
       def self.grouping(known, total)
@@ -90,7 +103,7 @@ module ParallelTests
         generation = self.class.positive_integer(attempt)
         directory = File.expand_path(directory)
         prepare_output(directory)
-        code = execute(command(index, File.join(directory, 'runtime.log')), env)
+        code = execute_shard(index, File.join(directory, 'runtime.log'), env)
         if code.zero?
           File.write(File.join(directory, 'result.json'),
                      JSON.generate('plan' => fingerprint, 'shard' => index, 'attempt' => generation))
@@ -101,7 +114,10 @@ module ParallelTests
       def collect(directory:, output:)
         paths = latest_results(directory)
         combined = RuntimeLog.merge(paths, files: plan.fetch('sizes').keys)
-        raise ArgumentError, 'No test timings were recorded' if combined.empty?
+        if combined.empty?
+          hint = minitest? ? '; configure the Minitest runtime logger in your test helper' : ''
+          raise ArgumentError, "No test timings were recorded#{hint}"
+        end
 
         FileUtils.mkdir_p(File.dirname(output))
         RuntimeLog.write(output, combined)
@@ -114,7 +130,7 @@ module ParallelTests
         index = self.class.positive_integer(shard)
         raise ArgumentError, 'Shard is outside the prepared matrix' if index > plan.fetch('shards')
         unless self.class.discover(plan.fetch('pattern')) == plan.fetch('sizes')
-          raise ArgumentError, 'Selected spec files or sizes changed after preparation'
+          raise ArgumentError, 'Selected test files or sizes changed after preparation'
         end
 
         index
@@ -136,10 +152,22 @@ module ParallelTests
         File.join(directory, 'runtime.log')
       end
 
-      def command(index, output)
-        options = [*plan.fetch('rspec_options'), '--format', 'progress',
-                   '--format', 'ParallelTests::RSpec::RuntimeLogger', '--out', output]
-        [RbConfig.ruby, Gem.bin_path('parallel_tests', 'parallel_rspec'),
+      def minitest?
+        plan['framework'] == 'minitest'
+      end
+
+      def execute_shard(index, output, env)
+        if minitest?
+          execute(command('parallel_test', index, []), env.merge('PTCI_RUNTIME_LOG' => output))
+        else
+          options = [*plan.fetch('rspec_options'), '--format', 'progress',
+                     '--format', 'ParallelTests::RSpec::RuntimeLogger', '--out', output]
+          execute(command('parallel_rspec', index, options), env)
+        end
+      end
+
+      def command(executable, index, options)
+        [RbConfig.ruby, Gem.bin_path('parallel_tests', executable),
          '-n', plan.fetch('shards').to_s, '--only-group', index.to_s,
          '--group-by', plan.fetch('group_by'), '--runtime-log', history_path,
          '--test-options', Shellwords.join(options), '--',

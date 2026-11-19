@@ -9,6 +9,7 @@
 - [#26](https://github.com/dblock/parallel_tests-ci/pull/26): Add a standalone GitHub Action that outputs RSpec shard assignments - [@dblock](https://github.com/dblock).
 - [#27](https://github.com/dblock/parallel_tests-ci/pull/27): Shorten workflow input descriptions in the README - [@dblock](https://github.com/dblock).
 - [#28](https://github.com/dblock/parallel_tests-ci/pull/28): Shorten the project guides and README demo - [@dblock](https://github.com/dblock).
+- [#30](https://github.com/dblock/parallel_tests-ci/pull/30): Add automatic Minitest sharding and timing history. RSpec checks now include `Shard Tests` in their names; update any required checks when upgrading - [@dblock](https://github.com/dblock).
 - Your contribution here.
 
 ## 0.1.0 (2026/11/19)

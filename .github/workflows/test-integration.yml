@@ -1,0 +1,63 @@
+name: Test Workflow Integration
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  rspec:
+    name: Exercise RSpec Workflow
+    uses: ./.github/workflows/rspec.yml
+    with:
+      ruby-version: '4.0'
+      shards: 8
+      worker-name: 'RSpec {shard.number}/{shard.count} ({plan.group_by})'
+      pattern: spec/fixtures/suite/*.rb
+      artifact-prefix: integration-templates
+      environment: '{"PTCI_OBSERVED":"tmp/parallel_tests_ci/observed.txt"}'
+      artifacts: tmp/parallel_tests_ci/observed.txt
+
+  minitest:
+    name: Exercise Minitest Workflow
+    uses: ./.github/workflows/minitest.yml
+    with:
+      ruby-version: '4.0'
+      shards: 2
+      pattern: spec/fixtures/minitest/*_test.rb
+      worker-name: 'Minitest {shard.number}/{shard.count} ({plan.group_by})'
+      environment: '{"PTCI_OBSERVED":"tmp/parallel_tests_ci/observed.txt"}'
+
+  integration_configuration:
+    name: Exercise Configuration (${{ matrix.entry.framework }}, ${{ matrix.entry.kernel }})
+    strategy:
+      fail-fast: false
+      matrix:
+        entry:
+          - { framework: rspec, pattern: 'spec/fixtures/suite/*.rb', runner: '["ubuntu-latest"]', kernel: Linux, cache: false }
+          - { framework: rspec, pattern: 'spec/fixtures/suite/*.rb', runner: macos-latest, kernel: Darwin, cache: true }
+          - { framework: minitest, pattern: 'spec/fixtures/minitest/*_test.rb', runner: '["ubuntu-latest"]', kernel: Linux, cache: false }
+          - { framework: minitest, pattern: 'spec/fixtures/minitest/*_test.rb', runner: macos-latest, kernel: Darwin, cache: true }
+    uses: ./.github/workflows/shards.yml
+    with:
+      framework: ${{ matrix.entry.framework }}
+      runs-on: ${{ matrix.entry.runner }}
+      timeout-minutes: 10
+      max-parallel: 1
+      fail-fast: true
+      fetch-depth: 0
+      ruby-version: '4.0'
+      bundler-cache: ${{ matrix.entry.cache }}
+      shards: 2
+      pattern: ${{ matrix.entry.pattern }}
+      artifact-prefix: integration-configuration-${{ matrix.entry.framework }}-${{ matrix.entry.kernel }}
+      artifact-retention-days: 1
+      baseline-retention-days: 1
+      environment: ${{ format('{{"PTCI_OBSERVED":"tmp/parallel_tests_ci/observed.txt","PTCI_EXPECTED_OS":"{0}"}}', matrix.entry.kernel) }}
+      before-bundle: test "$(git rev-parse --is-shallow-repository)" = false
+      setup: test "$(uname -s)" = "$PTCI_EXPECTED_OS"
+      artifacts: tmp/parallel_tests_ci/observed.txt

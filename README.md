@@ -4,17 +4,23 @@
 
 [![Gem Version](https://img.shields.io/gem/v/parallel_tests-ci.svg)](https://rubygems.org/gems/parallel_tests-ci) [![Test](https://github.com/dblock/parallel_tests-ci/actions/workflows/test.yml/badge.svg)](https://github.com/dblock/parallel_tests-ci/actions/workflows/test.yml) [![Lint](https://github.com/dblock/parallel_tests-ci/actions/workflows/lint.yml/badge.svg)](https://github.com/dblock/parallel_tests-ci/actions/workflows/lint.yml) [![Package](https://github.com/dblock/parallel_tests-ci/actions/workflows/package.yml/badge.svg)](https://github.com/dblock/parallel_tests-ci/actions/workflows/package.yml) [![Coverage](https://coveralls.io/repos/github/dblock/parallel_tests-ci/badge.svg?branch=master)](https://coveralls.io/github/dblock/parallel_tests-ci?branch=master)
 
-Runtime-balanced RSpec shards for GitHub Actions, powered by [parallel_tests](https://github.com/grosser/parallel_tests). Timing history is collected and reused automatically.
+Runtime-balanced RSpec and Minitest shards for GitHub Actions, powered by [parallel_tests](https://github.com/grosser/parallel_tests). Timing history is collected and reused automatically.
 
 ## Installation
 
-Requires Ruby 3.3+ and RSpec. Add to your Gemfile and run `bundle install`:
+Requires Ruby 3.3+ and either RSpec or Minitest 5. Add to your Gemfile and run `bundle install`:
 
 ```ruby
 gem 'parallel_tests-ci', '0.1.0', require: false
 ```
 
 ## Usage
+
+Ruby comes from your version file; workers use Ubuntu by default. The first run groups by file size. Successful default-branch pushes supply timings for later runs; PRs read them without updating history. Shard count is capped at the number of matching files. Keep gem and workflow versions matched.
+
+### RSpec
+
+RSpec matches `spec/**/*_spec.rb` by default and records timings automatically; no changes to `spec_helper.rb` are needed.
 
 Add `.github/workflows/test.yml`:
 
@@ -34,7 +40,20 @@ jobs:
       shards: 8
 ```
 
-Ruby comes from your version file; workers use Ubuntu by default. The first run groups by file size. Successful default-branch pushes supply timings for later runs; PRs read them without updating history. Jobs appear as `Test / 1 of 8`, capped at matching file count. Keep gem and workflow versions matched.
+With `v0.1.0`, workers appear as `Test / 1 of 8`.
+
+### Minitest
+
+Use `.github/workflows/minitest.yml` instead of `rspec.yml` with a matching gem version that includes Minitest support. The default pattern is `test/**/*_test.rb`; `rspec-options` is not available.
+
+In the `test_helper.rb` loaded by your tests, add this after loading Minitest:
+
+```ruby
+if (path = ENV.fetch('PTCI_RUNTIME_LOG', nil))
+  require 'parallel_tests/test/runtime_logger'
+  ParallelTests::Test::RuntimeLogger.logfile = path
+end
+```
 
 ### Standalone Shard Matrix Action
 
