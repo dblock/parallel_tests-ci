@@ -73,3 +73,9 @@ The original AI-assisted logo is MIT-licensed, with no third-party artwork. A si
 ```sh
 rsvg-convert --output assets/logo.png assets/logo.svg
 ```
+
+The original MIT-licensed [demo chart](assets/demo.svg) plots each run's slowest successful worker's RSpec `Finished in` duration, excluding setup and file loading. Source runs are linked in README. Keep its PNG synchronized:
+
+```sh
+rsvg-convert --output assets/demo.png assets/demo.svg
+```

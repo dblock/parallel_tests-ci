@@ -1,5 +1,6 @@
 Bundler
 CLI
+CMS
 Capybara
 Copilot
 Coveralls
@@ -19,6 +20,7 @@ PNG
 PR's
 PRs
 Postgres
+Posebook
 README
 RSpec
 Rakefile
