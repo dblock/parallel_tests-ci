@@ -9,7 +9,7 @@ Consumer.in_temporary_directory do
     abort 'Default require did not accept RSpec'
   end
 
-  FileUtils.cp(File.expand_path('framework_explicit/Gemfile', __dir__), 'Gemfile')
+  FileUtils.cp(File.expand_path('rspec_explicit/Gemfile', __dir__), 'Gemfile')
   boot = 'require "bundler"; Bundler.require'
   no_minitest_hook = "#{boot}; abort if defined?(ParallelTests::Test::RuntimeLogger)"
   env = { 'PTCI_RUNTIME_LOG' => 'unused.log', 'PTCI_CONSUMER_VERSION' => package.version.to_s }
