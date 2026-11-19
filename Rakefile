@@ -20,7 +20,7 @@ desc 'Build, inspect, and load the actual gem in a temporary consumer'
 task package: :build do
   artifact = File.expand_path("pkg/parallel_tests-ci-#{ParallelTests::CI::VERSION}.gem")
   package = Gem::Package.new(artifact)
-  expected = %w[CHANGELOG.md LICENSE.txt README.md] + Dir['lib/**/*.rb']
+  expected = %w[CHANGELOG.md LICENSE.txt README.md UPGRADING.md] + Dir['lib/**/*.rb']
   abort 'Unexpected packaged files' unless package.spec.files.sort == expected.sort
 
   Dir.mktmpdir('parallel-tests-ci-consumer') do |directory|

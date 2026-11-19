@@ -34,8 +34,8 @@ module ParallelTests
            '--test-options', Shellwords.join(test_options(options, output)), '--', *files]
         end
 
-        def test_options(_options, _output)
-          []
+        def test_options(options, _output)
+          options
         end
 
         def timing_environment(_output)

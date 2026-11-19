@@ -28,7 +28,7 @@ Unless `group-by` is `filesize`, Prepare looks for a retained baseline among the
 
 ### Plans and Retries
 
-`plan.json` records spec paths and sizes, grouping, shard count, and RSpec arguments. Its exact bytes and those of the historical `runtime.log` determine the SHA256 fingerprint. Workers download both, run caller setup, reject changed paths or sizes, and call `parallel_rspec` with `--only-group`, `--group-by`, and `--runtime-log`. Collect uses each shard's newest successful report and requires matching fingerprints, selected paths, and finite nonnegative durations.
+`plan.json` records test paths and sizes, grouping, shard count, and test framework arguments. Its exact bytes and those of the historical `runtime.log` determine the SHA256 fingerprint. Workers download both, run caller setup, reject changed paths or sizes, and call the selected `parallel_tests` runner with `--only-group`, `--group-by`, and `--runtime-log`. Collect uses each shard's newest successful report and requires matching fingerprints, selected paths, and finite nonnegative durations.
 
 | Case                     | Rule                                                                                                         |
 | ---                      | ---                                                                                                          |
@@ -68,7 +68,7 @@ An empty `worker-name` uses the default. Braces are reserved: unknown, empty, ne
 
 `environment` supplies non-secret JSON variables to every job. `secrets.environment` replaces that entire object, never merges with it. Neither secrets nor setup scripts come from artifacts.
 
-Run native dependency setup in `before-bundle` before Ruby/gems in all jobs. `setup` runs after gems in workers only; provision application services there. Do not add, remove, or resize selected specs. Keep secrets out of RSpec arguments and uploaded files.
+Run native dependency setup in `before-bundle` before Ruby/gems in all jobs. `setup` runs after gems in workers only; provision application services there. Do not add, remove, or resize selected specs. Keep secrets out of test arguments and uploaded files.
 
 `PTCI_INPUTS` carries `toJSON(inputs)`, parsed once per Ruby entry point and passed explicitly thereafter. Numeric types survive; JSON-string inputs are decoded separately. GitHub metadata/authentication and `PTCI_SHARD` stay separate. Ruby never logs or persists the entire input object.
 

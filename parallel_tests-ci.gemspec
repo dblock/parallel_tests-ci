@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
   spec.homepage = 'https://github.com/dblock/parallel_tests-ci'
   spec.license = 'MIT'
   spec.required_ruby_version = '>= 3.3'
-  spec.files = %w[CHANGELOG.md LICENSE.txt README.md] + Dir['lib/**/*.rb']
+  spec.files = %w[CHANGELOG.md LICENSE.txt README.md UPGRADING.md] + Dir['lib/**/*.rb']
   spec.require_paths = ['lib']
   spec.metadata = {
     'bug_tracker_uri' => "#{spec.homepage}/issues",

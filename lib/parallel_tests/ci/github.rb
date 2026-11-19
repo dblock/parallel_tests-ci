@@ -79,7 +79,7 @@ module ParallelTests
 
       def plan_settings(inputs)
         { pattern: inputs.fetch('pattern'), shards: inputs.fetch('shards'),
-          rspec_options: JSON.parse(inputs.fetch('rspec-options', '[]')),
+          test_options: JSON.parse(inputs.fetch('test-options', '[]')),
           framework: inputs.fetch('framework', 'rspec'), group_by: inputs.fetch('group-by', 'auto') }
       end
 

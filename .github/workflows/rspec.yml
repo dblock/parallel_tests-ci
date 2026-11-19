@@ -47,8 +47,8 @@ on:
         description: Repository-relative glob selecting spec files.
         type: string
         default: spec/**/*_spec.rb
-      rspec-options:
-        description: JSON array of additional RSpec arguments.
+      test-options:
+        description: JSON array of additional arguments for the selected test framework.
         type: string
         default: '[]'
       environment:
@@ -105,7 +105,7 @@ jobs:
       worker-name: ${{ inputs.worker-name }}
       group-by: ${{ inputs.group-by }}
       pattern: ${{ inputs.pattern }}
-      rspec-options: ${{ inputs.rspec-options }}
+      test-options: ${{ inputs.test-options }}
       environment: ${{ inputs.environment }}
       before-bundle: ${{ inputs.before-bundle }}
       setup: ${{ inputs.setup }}

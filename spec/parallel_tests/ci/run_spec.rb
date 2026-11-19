@@ -87,8 +87,13 @@ RSpec.describe ParallelTests::CI::Run, :aggregate_failures do
       .to raise_error(ArgumentError, /No spec files/)
   end
 
-  it 'rejects non-array RSpec options' do
-    expect { described_class.prepare(directory: 'plan', rspec_options: '--fail-fast') }
+  it 'rejects non-array test options' do
+    expect { described_class.prepare(directory: 'plan', test_options: '--fail-fast') }
+      .to raise_error(ArgumentError, /array of strings/)
+  end
+
+  it 'rejects test options containing non-strings' do
+    expect { described_class.prepare(directory: 'plan', test_options: ['--seed', 123]) }
       .to raise_error(ArgumentError, /array of strings/)
   end
 
@@ -118,11 +123,19 @@ RSpec.describe ParallelTests::CI::Run, :aggregate_failures do
   it 'uses one runtime snapshot and upstream unknown-duration estimation for new files' do
     File.write('history.log', "spec/first.rb:0\n")
     prepared = described_class.prepare(directory: 'plan', pattern: 'spec/*.rb', shards: 2, history: 'history.log',
-                                       rspec_options: ['--seed', '123'])
+                                       test_options: ['--seed', '123'])
     expect(prepared.plan.fetch('group_by')).to eq('runtime')
     run_shards(prepared)
     expect(File.readlines(observed, chomp: true).sort).to eq(%w[first second])
     expect(File.read('plan/runtime.log')).to eq("spec/first.rb:0.0\n")
+  end
+
+  it 'passes test options with spaces to RSpec while preserving timing collection' do
+    prepared = described_class.prepare(directory: 'plan', pattern: 'spec/*.rb', shards: 1,
+                                       test_options: ['--example', 'First Fixture'])
+    expect(prepared.run(shard: 1, attempt: 1, directory: 'results/1', env: { 'PTCI_OBSERVED' => observed })).to eq(0)
+    expect(File.readlines(observed, chomp: true)).to eq(['first'])
+    expect(prepared.collect(directory: 'results', output: 'baseline.log').keys).to eq(['spec/first.rb'])
   end
 
   it 'propagates real RSpec failures and removes an older success marker' do
