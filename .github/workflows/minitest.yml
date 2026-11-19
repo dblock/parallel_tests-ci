@@ -1,0 +1,107 @@
+name: Minitest Shards
+
+on:
+  workflow_call:
+    inputs:
+      runs-on:
+        description: Runner label or JSON array of labels for every job (Linux or macOS).
+        type: string
+        default: ubuntu-latest
+      timeout-minutes:
+        description: Positive integer timeout for each preparation, worker, and collection job.
+        type: number
+        default: 360
+      max-parallel:
+        description: Maximum concurrent workers (1-256), subject to runner availability.
+        type: number
+        default: 256
+      fail-fast:
+        description: Cancel queued and running workers when a worker fails.
+        type: boolean
+        default: false
+      fetch-depth:
+        description: Checkout history depth in every job (0 fetches all history and tags).
+        type: number
+        default: 1
+      ruby-version:
+        description: Ruby version (empty uses the caller's version file).
+        type: string
+        default: ''
+      bundler-cache:
+        description: Cache installed gems in every job (false still runs bundle install).
+        type: boolean
+        default: true
+      shards:
+        description: Number of test shards (1-256), capped at the number of matching test files.
+        type: number
+        default: 4
+      worker-name:
+        description: 'Worker display-name template with {shard.number}, {shard.count}, and {plan.group_by} placeholders.'
+        type: string
+        default: '{shard.number} of {shard.count}'
+      pattern:
+        description: Repository-relative glob selecting test files.
+        type: string
+        default: test/**/*_test.rb
+      environment:
+        description: JSON object of non-secret environment variables.
+        type: string
+        default: '{}'
+      before-bundle:
+        description: Shell setup before installing Ruby/gems in every job.
+        type: string
+        default: ''
+      setup:
+        description: Shell setup after installing gems in each test shard.
+        type: string
+        default: ''
+      artifacts:
+        description: Additional artifact paths, such as coverage and failure screenshots.
+        type: string
+        default: ''
+      artifact-prefix:
+        description: Unique prefix when calling this workflow more than once.
+        type: string
+        default: parallel-tests-ci-minitest
+      artifact-retention-days:
+        description: Retention for plans, measurements, and test artifacts (0 uses repository default).
+        type: number
+        default: 30
+      baseline-retention-days:
+        description: Retention for trusted timing history (0 uses repository default).
+        type: number
+        default: 90
+    secrets:
+      environment:
+        description: Optional complete JSON environment object, replacing the non-secret environment input.
+        required: false
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  shards:
+    name: Shard Tests
+    uses: ./.github/workflows/shards.yml
+    with:
+      framework: minitest
+      runs-on: ${{ inputs.runs-on }}
+      timeout-minutes: ${{ inputs.timeout-minutes }}
+      max-parallel: ${{ inputs.max-parallel }}
+      fail-fast: ${{ inputs.fail-fast }}
+      fetch-depth: ${{ inputs.fetch-depth }}
+      ruby-version: ${{ inputs.ruby-version }}
+      bundler-cache: ${{ inputs.bundler-cache }}
+      shards: ${{ inputs.shards }}
+      worker-name: ${{ inputs.worker-name }}
+      pattern: ${{ inputs.pattern }}
+      environment: ${{ inputs.environment }}
+      before-bundle: ${{ inputs.before-bundle }}
+      setup: ${{ inputs.setup }}
+      artifacts: ${{ inputs.artifacts }}
+      artifact-prefix: ${{ inputs.artifact-prefix }}
+      artifact-retention-days: ${{ inputs.artifact-retention-days }}
+      baseline-retention-days: ${{ inputs.baseline-retention-days }}
+    secrets:
+      environment: ${{ secrets.environment }}

@@ -2,9 +2,11 @@
 
 ## Scope
 
-The gem validates plans and timing reports; `.github/workflows/rspec.yml` handles GitHub Actions jobs and artifacts. [parallel_tests](https://github.com/grosser/parallel_tests) owns partitioning, timing collection, and unknown-runtime estimation. Use its documented API and formatter, not a custom scheduler or console parsing.
+The gem validates plans and timing reports; `.github/workflows/shards.yml` handles GitHub Actions jobs and artifacts. [parallel_tests](https://github.com/grosser/parallel_tests) owns partitioning, timing collection, and unknown-runtime estimation. Use its documented API and formatter, not a custom scheduler or console parsing.
 
-Scope is RSpec on GitHub Actions, without a hosted service, public CLI, or other-provider abstraction. Automatic shard sizing is not implemented.
+Scope is RSpec and Minitest on GitHub Actions, without a hosted service, public CLI, or other-provider abstraction. Automatic shard sizing is not implemented.
+
+`rspec.yml` and `minitest.yml` pass their framework, file pattern, and artifact prefix to `shards.yml`. The immutable plan selects `parallel_test` for Minitest. Workers send `PTCI_RUNTIME_LOG` to the test process so the upstream Minitest logger writes measurements separately from restored history. Minitest 6 changed the runner hooks used by that logger; use Minitest 5.
 
 ## Standalone Shard Matrix Action
 

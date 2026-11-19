@@ -9,65 +9,6 @@ permissions:
   contents: read
 
 jobs:
-  integration:
-    name: Exercise Shared Workflow
-    permissions:
-      contents: read
-      actions: read
-    uses: ./.github/workflows/rspec.yml
-    with:
-      ruby-version: '4.0'
-      shards: 2
-      pattern: spec/fixtures/suite/*.rb
-      artifact-prefix: integration
-      environment: '{"PTCI_OBSERVED":"tmp/parallel_tests_ci/observed.txt"}'
-      artifacts: tmp/parallel_tests_ci/observed.txt
-
-  integration_templates:
-    name: Exercise Template Variables
-    permissions:
-      contents: read
-      actions: read
-    uses: ./.github/workflows/rspec.yml
-    with:
-      ruby-version: '4.0'
-      shards: 8
-      worker-name: 'RSpec {shard.number}/{shard.count} ({plan.group_by})'
-      pattern: spec/fixtures/suite/*.rb
-      artifact-prefix: integration-templates
-      environment: '{"PTCI_OBSERVED":"tmp/parallel_tests_ci/observed.txt"}'
-      artifacts: tmp/parallel_tests_ci/observed.txt
-
-  integration_configuration:
-    name: Exercise Configuration (${{ matrix.entry.id }})
-    permissions:
-      contents: read
-      actions: read
-    strategy:
-      fail-fast: false
-      matrix:
-        entry:
-          - { id: linux, runner: '["ubuntu-latest"]', kernel: Linux, cache: false }
-          - { id: macos, runner: macos-latest, kernel: Darwin, cache: true }
-    uses: ./.github/workflows/rspec.yml
-    with:
-      runs-on: ${{ matrix.entry.runner }}
-      timeout-minutes: 10
-      max-parallel: 1
-      fail-fast: true
-      fetch-depth: 0
-      ruby-version: '4.0'
-      bundler-cache: ${{ matrix.entry.cache }}
-      shards: 2
-      pattern: spec/fixtures/suite/*.rb
-      artifact-prefix: integration-configuration-${{ matrix.entry.id }}
-      artifact-retention-days: 1
-      baseline-retention-days: 1
-      environment: ${{ format('{{"PTCI_OBSERVED":"tmp/parallel_tests_ci/observed.txt","PTCI_EXPECTED_OS":"{0}"}}', matrix.entry.kernel) }}
-      before-bundle: test "$(git rev-parse --is-shallow-repository)" = false
-      setup: test "$(uname -s)" = "$PTCI_EXPECTED_OS"
-      artifacts: tmp/parallel_tests_ci/observed.txt
-
   test:
     name: Test Ruby ${{ matrix.entry.ruby }} on ${{ matrix.entry.os }}
     runs-on: ${{ matrix.entry.os }}

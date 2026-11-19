@@ -71,11 +71,16 @@ module ParallelTests
 
       def prepare(inputs:)
         run = Run.prepare(directory: "#{DIRECTORY}/plan", history: "#{DIRECTORY}/history/runtime.log",
-                          pattern: inputs.fetch('pattern'), shards: inputs.fetch('shards'),
-                          rspec_options: JSON.parse(inputs.fetch('rspec-options')))
+                          **plan_settings(inputs))
         outputs(matrix: JSON.generate(worker_matrix(run, inputs: inputs)),
                 artifact: "#{prefix(inputs.fetch('artifact-prefix'))}-plan-#{ENV.fetch('GITHUB_RUN_ATTEMPT')}")
         puts "Prepared #{run.plan.fetch('shards')} shards using #{run.plan.fetch('group_by')} grouping."
+      end
+
+      def plan_settings(inputs)
+        { pattern: inputs.fetch('pattern'), shards: inputs.fetch('shards'),
+          rspec_options: JSON.parse(inputs.fetch('rspec-options', '[]')),
+          framework: inputs.fetch('framework', 'rspec') }
       end
 
       def worker_matrix(run, inputs:)

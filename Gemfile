@@ -7,6 +7,7 @@ gemspec
 gem 'danger', '~> 9.6', '>= 9.6.2'
 gem 'danger-changelog', '~> 0.10', require: false
 gem 'danger-pr-comment', '~> 0.3', require: false
+gem 'minitest', '~> 5.27', require: false
 gem 'rake', '~> 13.4'
 gem 'rspec', '~> 3.13'
 gem 'rubocop', '~> 1.92'

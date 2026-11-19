@@ -15,6 +15,7 @@ Invariants
 JSON
 JUnit
 LCOV
+Minitest
 OIDC
 PNG
 PR's
