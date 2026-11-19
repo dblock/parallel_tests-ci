@@ -1,4 +1,4 @@
-<img src="assets/logo.svg" alt="A solid blue cube beside eight outlined cubes" width="160">
+<img src="assets/logo.svg" alt="A solid green cube beside eight outlined cubes in perspective" width="160">
 
 # Parallel Tests CI
 
