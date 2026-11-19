@@ -1,6 +1,6 @@
 # Working on Parallel Tests CI
 
-Read [Contributing](CONTRIBUTING.md) for commands and PR rules, [Design](DESIGN.md) for behavior, and [Releasing](RELEASING.md) before release work.
+Read [Contributing](CONTRIBUTING.md) for validation, CI, and PR rules, [Design](DESIGN.md) for behavior, and [Releasing](RELEASING.md) before release work.
 
 ## Scope and Layout
 
@@ -16,12 +16,6 @@ Use the documented `parallel_tests` API for partitioning, timing, and unknown-ru
 - Write success markers only after passing tests. Collect every shard's newest successful attempt for the same fingerprint; reject duplicate latest reports.
 - Trust baselines only from successful default-branch push workflows. Fork PRs remain read-only; never execute artifacts, use `pull_request_target`, or request extra tokens.
 
-## Validation and Maintenance
+## Maintenance
 
-Run `bundle exec rake spec lint`; add `bundle exec rake package` for public-entry, dependency, execution, or packaging changes. Documentation-only changes need lint. Reuse passing checks for unchanged content; Danger runs only in PR CI.
-
-Keep Test, Lint, and Package separate; retain Coveralls, real subprocesses, and installed-consumer tests. Inspect line and branch gaps without trivial coverage assertions or runtime exclusions.
-
-Authorized manual release automation pushes release metadata and the next development version directly to `master`. Branch rules permit fast-forward pushes by all writers but block force pushes and deletion with no bypass actors; ordinary development still uses PRs. The `release` environment accepts only `master` and has no deployment approval requirement.
-
-Use concise, single-line Markdown paragraphs and Title Case headings/display names. Review `.spellcheck.txt` additions and keep lint exceptions narrow. Preserve artwork sources, provenance, and rendering instructions. Do not merge, publish, tag, or change authentication without explicit authorization.
+Preserve artwork sources, provenance, and rendering instructions. Do not merge, publish, tag, or change authentication without explicit authorization.

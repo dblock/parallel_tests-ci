@@ -18,9 +18,9 @@ bundle install
 | `bundle exec rake package`           | Build and inspect the gem; install that exact archive and execute/collect two shards. |
 | `actionlint .github/workflows/*.yml` | GitHub Actions syntax and expressions.                                                |
 
-Run affected tests and lint before committing/pushing; add package validation for public-entry, dependency, execution, or packaging changes. Documentation-only changes need lint. Reuse passing results for unchanged content; inspect CI without waiting after local checks pass.
+Before committing or pushing, run affected specs and lint, plus package validation for public-entry, dependency, execution, or packaging changes. For docs-only changes, run lint. Reuse passing results for unchanged content; check CI later.
 
-Keep prose concise and paragraphs on one source line. Use Title Case headings and workflow/job/step display names. Format with `bundle exec rubocop -a`, inspect corrections, and review `.spellcheck.txt` additions instead of suppressing typos.
+Use single-line Markdown paragraphs and Title Case for headings and workflow, job, and step names. Review `bundle exec rubocop -a` corrections and `.spellcheck.txt` additions; keep lint exceptions narrow.
 
 ## Tests
 
@@ -34,7 +34,7 @@ CI tests the Ruby minimum/current release and calls the shared workflow for defa
 
 Use `<username>/<topic>` branches in `~/source/parallel_tests-ci/master`; sibling worktrees are for parallel tasks only. Inspect status and worktree ownership before switching; preserve unrelated changes.
 
-Authorized manual release automation pushes release metadata and the next development version directly to `master`. Branch rules allow fast-forward pushes by all writers while blocking force pushes and deletion with no bypass actors; this does not change the ordinary development PR policy. The `release` environment accepts only `master` and has no deployment approval requirement.
+Development requires PRs; see [Releasing](RELEASING.md#prerequisites) for the authorized release automation exception and branch rules.
 
 Keep one coherent commit per PR. Stack dependent PRs against their immediate predecessor and preserve native stack membership. Use rebase merges only, with explicit merge authorization. Include `Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>` in AI-assisted commits and disclose AI authorship on behalf of @dblock in PRs/comments.
 

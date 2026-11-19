@@ -79,15 +79,15 @@ See [Workflow Inputs](DESIGN.md#workflow-inputs) for templates, secret environme
 
 ## Demo
 
-[Posebook](https://github.com/dblock/posebook), a custom Rails CMS, runs 1,142 examples across eight workers. Times below are reported by RSpec and exclude setup and spec loading.
+[Posebook](https://github.com/dblock/posebook) runs 1,142 examples across eight workers. Times are for the slowest successful RSpec worker, excluding setup and spec loading.
 
 <img src="assets/demo.svg" alt="Slowest worker RSpec time: serial 395s, custom sharding 61.62s, parallel_tests alone 70.71s, parallel_tests-ci cold run 79.11s, warm run 57.59s" width="480">
 
-- [Single-worker run](https://github.com/dblock/posebook/actions/runs/44218105420): No parallel tests; 395s.
-- [#178](https://github.com/dblock/posebook/pull/178): Introduce custom sharding, no `parallel_tests`; slowest worker 61.62s.
-- [#181](https://github.com/dblock/posebook/pull/181): `parallel_tests` alone, without `parallel_tests-ci`; slowest worker 70.71s.
-- [#185](https://github.com/dblock/posebook/pull/185): Initial cold run; slowest worker 79.11s.
-- [#187](https://github.com/dblock/posebook/pull/187): Warm history redistributed 85/95 files; slowest successful worker 57.59s.
+- [Serial run](https://github.com/dblock/posebook/actions/runs/44218105420): 395s.
+- [Custom sharding #178](https://github.com/dblock/posebook/pull/178): 61.62s.
+- [`parallel_tests` alone #181](https://github.com/dblock/posebook/pull/181): 70.71s.
+- [Cold run #185](https://github.com/dblock/posebook/pull/185): 79.11s.
+- [Warm run #187](https://github.com/dblock/posebook/pull/187): 57.59s; timings for 85/95 files.
 
 ## Contributing
 
