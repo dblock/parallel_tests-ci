@@ -14,17 +14,17 @@ The [standalone action](README.md#standalone-shard-matrix-action) uses the same 
 
 ## Workflow
 
-| Job     | Behavior                                                                                                                                                                                                                                  |
-| ---     | ---                                                                                                                                                                                                                                       |
-| Prepare | Inspect the caller workflow's latest 20 successful default-branch push runs for a retained baseline. Select files, cap the requested 1-256 shards at file count, and emit `matrix.entry` through `$GITHUB_OUTPUT`. Empty selections fail. |
-| Test    | Download the immutable plan/history, run caller setup, reject changed spec paths/sizes, and invoke `parallel_rspec` with `--only-group`, `--group-by`, and `--runtime-log`. Write a success marker only after passing tests.              |
-| Collect | Require every shard, matching fingerprints, selected paths, and finite nonnegative durations. Combine the newest successful attempt per shard; publish history only on default-branch pushes.                                             |
+| Job     | Behavior                                                         |
+| ---     | ---                                                              |
+| Prepare | Find a timing baseline and emit the `matrix.entry` plan.         |
+| Test    | Run each planned shard and mark it successful only if it passes. |
+| Collect | Validate and combine all shards' timings into a baseline.        |
 
-Missing, expired, malformed, or inaccessible history falls back centrally to file sizes. Runtime grouping requires timings for at least half the selected files; stale paths are discarded. Unknown files use upstream's average-duration estimate. History stays per file, so worker-count changes do not invalidate it.
+Prepare looks for a retained baseline among the caller workflow's latest 20 successful default-branch pushes. It rejects empty selections, caps the requested 1-256 shards at the file count, and writes the matrix to `$GITHUB_OUTPUT`. Missing, expired, malformed, or inaccessible history falls back to file sizes. Runtime grouping drops stale paths and requires timings for at least half the selected files; upstream estimates unknown durations. Per-file history survives worker-count changes.
 
 ### Plans and Retries
 
-`plan.json` records selected paths/sizes, grouping, shard count, and RSpec arguments. Its historical `runtime.log` is separate from worker output; their exact bytes determine the SHA256 fingerprint.
+`plan.json` records spec paths and sizes, grouping, shard count, and RSpec arguments. Its exact bytes and those of the historical `runtime.log` determine the SHA256 fingerprint. Workers download both, run caller setup, reject changed paths or sizes, and call `parallel_rspec` with `--only-group`, `--group-by`, and `--runtime-log`. Collect uses each shard's newest successful report and requires matching fingerprints, selected paths, and finite nonnegative durations.
 
 | Case                     | Rule                                                                                                         |
 | ---                      | ---                                                                                                          |
