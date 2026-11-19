@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-The Rakefile uses [ruby-gem-release](https://github.com/dblock/ruby-gem-release) with `RubyConstant` and `Intridea` adapters.
+The Rakefile uses [ruby-gem-release](https://github.com/dblock/ruby-gem-release) with a `RubyConstant` subclass and the `Intridea` adapter. After publication, the version subclass updates this project's versioned README gem and workflow examples to the released version while preparing the next development version.
 
 Before dispatch, verify:
 

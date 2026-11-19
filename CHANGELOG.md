@@ -13,6 +13,7 @@
 - [#31](https://github.com/dblock/parallel_tests-ci/pull/31): Separate framework runners from the shared sharding lifecycle - [@dblock](https://github.com/dblock).
 - [#33](https://github.com/dblock/parallel_tests-ci/pull/33): Enable Minitest timing collection with a Gemfile require and detect the loaded framework by default - [@dblock](https://github.com/dblock).
 - [#34](https://github.com/dblock/parallel_tests-ci/pull/34): Select automatic, file size, or runtime grouping in workflows and the standalone action - [@dblock](https://github.com/dblock).
+- [#36](https://github.com/dblock/parallel_tests-ci/pull/36): Add a complete Minitest workflow example and keep release references current - [@dblock](https://github.com/dblock).
 - Your contribution here.
 
 ## 0.1.0 (2026/11/19)
