@@ -14,6 +14,7 @@
 - [#33](https://github.com/dblock/parallel_tests-ci/pull/33): Enable Minitest timing collection with a Gemfile require and detect the loaded framework by default - [@dblock](https://github.com/dblock).
 - [#34](https://github.com/dblock/parallel_tests-ci/pull/34): Select automatic, file size, or runtime grouping in workflows and the standalone action - [@dblock](https://github.com/dblock).
 - [#35](https://github.com/dblock/parallel_tests-ci/pull/35): Lint YAML with RuboCop YAML - [@dblock](https://github.com/dblock).
+- [#37](https://github.com/dblock/parallel_tests-ci/pull/37): Use the YAML cop file-selection fix instead of per-cop filters - [@dblock](https://github.com/dblock).
 - Your contribution here.
 
 ## 0.1.0 (2026/11/19)

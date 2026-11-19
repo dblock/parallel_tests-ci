@@ -21,14 +21,6 @@ AllCops:
     - 'pkg/**/*'
     - 'vendor/**/*'
 
-YAML/Lint/InvalidSyntax:
-  Include: &yaml_files
-    - '**/*.yml'
-    - '**/*.yaml'
-
-YAML/Lint/DuplicateKey:
-  Include: *yaml_files
-
 Layout/LineLength:
   Enabled: false
 
