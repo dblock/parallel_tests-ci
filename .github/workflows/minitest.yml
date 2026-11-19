@@ -39,6 +39,10 @@ on:
         description: 'Worker display-name template with {shard.number}, {shard.count}, and {plan.group_by} placeholders.'
         type: string
         default: '{shard.number} of {shard.count}'
+      group-by:
+        description: Group by auto, filesize, or runtime.
+        type: string
+        default: auto
       pattern:
         description: Repository-relative glob selecting test files.
         type: string
@@ -95,6 +99,7 @@ jobs:
       bundler-cache: ${{ inputs.bundler-cache }}
       shards: ${{ inputs.shards }}
       worker-name: ${{ inputs.worker-name }}
+      group-by: ${{ inputs.group-by }}
       pattern: ${{ inputs.pattern }}
       environment: ${{ inputs.environment }}
       before-bundle: ${{ inputs.before-bundle }}

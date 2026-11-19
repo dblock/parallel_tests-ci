@@ -43,6 +43,10 @@ on:
         description: 'Worker display-name template with {shard.number}, {shard.count}, and {plan.group_by} placeholders.'
         type: string
         default: '{shard.number} of {shard.count}'
+      group-by:
+        description: Group by auto, filesize, or runtime.
+        type: string
+        default: auto
       pattern:
         description: Repository-relative glob selecting test files.
         type: string
@@ -118,6 +122,7 @@ jobs:
         if: ${{ !inputs.bundler-cache }}
         run: bundle install
       - name: Find Trusted History
+        if: inputs.group-by == 'auto' || inputs.group-by == 'runtime'
         id: history
         env:
           GH_TOKEN: ${{ github.token }}

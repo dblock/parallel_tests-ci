@@ -45,7 +45,7 @@ module ParallelTests
           break
         end
       rescue Error, JSON::ParserError, SystemCallError => e
-        warn "Timing history unavailable; using file sizes: #{e.message}"
+        warn "Timing history unavailable: #{e.message}"
       end
 
       def successful_runs(repository)
@@ -80,7 +80,7 @@ module ParallelTests
       def plan_settings(inputs)
         { pattern: inputs.fetch('pattern'), shards: inputs.fetch('shards'),
           rspec_options: JSON.parse(inputs.fetch('rspec-options', '[]')),
-          framework: inputs.fetch('framework', 'rspec') }
+          framework: inputs.fetch('framework', 'rspec'), group_by: inputs.fetch('group-by', 'auto') }
       end
 
       def worker_matrix(run, inputs:)

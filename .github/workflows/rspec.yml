@@ -39,6 +39,10 @@ on:
         description: 'Worker display-name template with {shard.number}, {shard.count}, and {plan.group_by} placeholders.'
         type: string
         default: '{shard.number} of {shard.count}'
+      group-by:
+        description: Group by auto, filesize, or runtime.
+        type: string
+        default: auto
       pattern:
         description: Repository-relative glob selecting spec files.
         type: string
@@ -99,6 +103,7 @@ jobs:
       bundler-cache: ${{ inputs.bundler-cache }}
       shards: ${{ inputs.shards }}
       worker-name: ${{ inputs.worker-name }}
+      group-by: ${{ inputs.group-by }}
       pattern: ${{ inputs.pattern }}
       rspec-options: ${{ inputs.rspec-options }}
       environment: ${{ inputs.environment }}

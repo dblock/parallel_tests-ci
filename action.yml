@@ -13,6 +13,9 @@ inputs:
   runtime-log:
     description: Optional path to a local parallel_tests runtime log.
     default: ''
+  group-by:
+    description: Group by auto, filesize, or runtime.
+    default: auto
 outputs:
   matrix:
     description: JSON array of entries with a shard number and its assigned file paths.
@@ -30,5 +33,6 @@ runs:
         PTCI_ACTION_PATH: ${{ github.action_path }}
         PTCI_PATTERN: ${{ inputs.pattern }}
         PTCI_SHARDS: ${{ inputs.shards }}
+        PTCI_GROUP_BY: ${{ inputs.group-by }}
         PTCI_RUNTIME_LOG: ${{ inputs.runtime-log }}
       run: bundle exec ruby "$PTCI_ACTION_PATH/script/shard_matrix.rb"
