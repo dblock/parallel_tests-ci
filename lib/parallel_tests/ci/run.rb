@@ -27,9 +27,7 @@ module ParallelTests
       def self.configuration(pattern: nil, shards: 4, rspec_options: [], framework: 'rspec')
         count = positive_integer(shards)
         raise ArgumentError, 'GitHub Actions allows at most 256 shards' if count > 256
-        unless rspec_options.is_a?(Array) && rspec_options.all?(String)
-          raise ArgumentError, 'RSpec options must be an array of strings'
-        end
+        raise ArgumentError, 'RSpec options must be an array of strings' unless rspec_options.is_a?(Array) && rspec_options.all?(String)
 
         plan = selection(pattern, framework)
         plan.merge('shards' => [count, plan.fetch('sizes').size].min, 'rspec_options' => rspec_options)
@@ -51,9 +49,7 @@ module ParallelTests
         return sufficient ? 'runtime' : 'filesize' if requested == 'auto'
         return requested if requested == 'filesize' || (requested == 'runtime' && sufficient)
 
-        if requested == 'runtime'
-          raise ArgumentError, 'Runtime grouping requires usable timings for at least half the selected files'
-        end
+        raise ArgumentError, 'Runtime grouping requires usable timings for at least half the selected files' if requested == 'runtime'
 
         raise ArgumentError, "Invalid group-by #{requested.inspect}; expected auto, filesize, or runtime"
       end
@@ -130,9 +126,7 @@ module ParallelTests
       def validate_shard(shard)
         index = self.class.positive_integer(shard)
         raise ArgumentError, 'Shard is outside the prepared matrix' if index > plan.fetch('shards')
-        unless self.class.discover(plan.fetch('pattern')) == plan.fetch('sizes')
-          raise ArgumentError, 'Selected test files or sizes changed after preparation'
-        end
+        raise ArgumentError, 'Selected test files or sizes changed after preparation' unless self.class.discover(plan.fetch('pattern')) == plan.fetch('sizes')
 
         index
       end
@@ -164,9 +158,7 @@ module ParallelTests
       def latest_results(directory)
         results = result_records(directory)
         expected = (1..plan.fetch('shards')).to_a
-        unless results.map { |result| result.fetch('shard') }.uniq.sort == expected
-          raise ArgumentError, 'Incomplete or unexpected shard reports'
-        end
+        raise ArgumentError, 'Incomplete or unexpected shard reports' unless results.map { |result| result.fetch('shard') }.uniq.sort == expected
 
         expected.map { |shard| latest_result(results.select { |result| result.fetch('shard') == shard }) }
       end
@@ -183,9 +175,7 @@ module ParallelTests
       def latest_result(results)
         results.each { |result| result['attempt'] = self.class.positive_integer(result.fetch('attempt')) }
         latest = results.max_by { |result| result.fetch('attempt') }
-        if results.count { |result| result.fetch('attempt') == latest.fetch('attempt') } != 1
-          raise ArgumentError, 'Duplicate reports for the same shard and attempt'
-        end
+        raise ArgumentError, 'Duplicate reports for the same shard and attempt' if results.count { |result| result.fetch('attempt') == latest.fetch('attempt') } != 1
 
         latest.fetch('path')
       end

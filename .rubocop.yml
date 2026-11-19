@@ -4,20 +4,40 @@ plugins:
   - rubocop-rake
   - rubocop-rspec
   - rubocop-spellcheck
+  - rubocop-yaml
 
 AllCops:
   TargetRubyVersion: 3.3
   NewCops: enable
+  inherit_mode:
+    merge:
+      - Include
+  Include:
+    - '.github/**/*.yml'
+    - '.github/**/*.yaml'
+    - '.rubocop.yml'
   Exclude:
     - 'coverage/**/*'
     - 'pkg/**/*'
     - 'vendor/**/*'
+
+YAML/Lint/InvalidSyntax:
+  Include: &yaml_files
+    - '**/*.yml'
+    - '**/*.yaml'
+
+YAML/Lint/DuplicateKey:
+  Include: *yaml_files
+
+Layout/LineLength:
+  Enabled: false
 
 Naming/FileName:
   inherit_mode:
     merge:
       - Exclude
   Exclude:
+    - '.github/workflows/*.yml'
     # Bundler requires the gem name by default.
     - lib/parallel_tests-ci.rb
 

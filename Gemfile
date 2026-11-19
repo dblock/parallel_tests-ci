@@ -16,6 +16,7 @@ gem 'rubocop-prose', '~> 0.2', require: false
 gem 'rubocop-rake', '~> 0.7', require: false
 gem 'rubocop-rspec', '~> 3.10', require: false
 gem 'rubocop-spellcheck', '~> 0.2', require: false
+gem 'rubocop-yaml', '~> 0.1.0', require: false
 gem 'ruby-gem-release', '~> 0.6', require: false
 gem 'simplecov', '~> 1.3', require: false
 gem 'simplecov-lcov', '~> 0.9', require: false
