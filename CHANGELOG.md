@@ -17,6 +17,7 @@
 - [#38](https://github.com/dblock/parallel_tests-ci/pull/38): Replace `rspec-options` with framework-neutral `test-options` for RSpec and Minitest - [@dblock](https://github.com/dblock).
 - [#40](https://github.com/dblock/parallel_tests-ci/pull/40): Separate installed-consumer checks by framework - [@dblock](https://github.com/dblock).
 - [#41](https://github.com/dblock/parallel_tests-ci/pull/41): Name the synthetic RSpec fixture directory consistently with Minitest - [@dblock](https://github.com/dblock).
+- [#42](https://github.com/dblock/parallel_tests-ci/pull/42): Separate RSpec runner integration checks from shared lifecycle specs - [@dblock](https://github.com/dblock).
 - Your contribution here.
 
 ## 0.1.0 (2026/11/19)
