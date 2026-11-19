@@ -38,7 +38,7 @@ RSpec/Output:
 RSpec:
   Exclude:
     # These synthetic suites run only in subprocesses, not in the unit spec runner.
-    - 'spec/fixtures/suite/*.rb'
+    - 'spec/fixtures/rspec/*.rb'
 
 RSpec/ExampleLength:
   Max: 10

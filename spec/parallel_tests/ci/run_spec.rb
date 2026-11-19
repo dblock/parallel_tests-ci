@@ -6,7 +6,7 @@ RSpec.describe ParallelTests::CI::Run, :aggregate_failures do
   let(:run) { described_class.prepare(directory: 'plan', pattern: 'spec/*.rb', shards: 2) }
   let(:observed) { File.expand_path('observed.txt') }
 
-  before { copy_suite }
+  before { copy_rspec_suite }
 
   def report(shard, attempt: 1, entries: {}, fingerprint: run.fingerprint, folder: "#{shard}-#{attempt}")
     path = File.join('results', folder)
