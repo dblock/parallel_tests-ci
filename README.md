@@ -11,23 +11,23 @@ Runtime-balanced RSpec and Minitest shards for GitHub Actions, powered by [paral
 Requires Ruby 3.3+ and either RSpec or Minitest 5. Add to your Gemfile and run `bundle install`:
 
 ```ruby
-gem 'parallel_tests-ci', '0.1.0', require: false
+gem 'parallel_tests-ci', '0.2.0', require: false
 ```
 
 ## Usage
 
 Ruby comes from your version file; workers use Ubuntu by default. The first run groups by file size. Successful default-branch pushes supply timings for later runs; PRs read them without updating history. Shard count is capped at the number of matching files. Keep gem and workflow versions matched.
 
-With a gem version that supports framework detection, `require 'parallel_tests-ci'` (including the default `Bundler.require` behavior) selects the framework already loaded. It raises `LoadError` if neither or both are loaded. Use an explicit require below to avoid depending on load order or to select a framework when both are loaded.
+`require 'parallel_tests-ci'` (including the default `Bundler.require` behavior) selects the framework already loaded. It raises `LoadError` if neither or both are loaded. Use an explicit require below to avoid depending on load order or to select a framework when both are loaded.
 
 ### RSpec
 
 RSpec matches `spec/**/*_spec.rb` by default and records timings automatically; no changes to `spec_helper.rb` are needed.
 
-If your test boot calls `Bundler.require` and you want to select RSpec explicitly, use this Gemfile entry with a version that provides it:
+If your test boot calls `Bundler.require` and you want to select RSpec explicitly, use this Gemfile entry:
 
 ```ruby
-gem 'parallel_tests-ci', require: 'parallel_tests/ci/rspec'
+gem 'parallel_tests-ci', '0.2.0', require: 'parallel_tests/ci/rspec'
 ```
 
 Add `.github/workflows/test.yml`:
@@ -43,24 +43,40 @@ permissions:
 jobs:
   test:
     name: Test
-    uses: dblock/parallel_tests-ci/.github/workflows/rspec.yml@v0.1.0
+    uses: dblock/parallel_tests-ci/.github/workflows/rspec.yml@v0.2.0
     with:
       shards: 8
 ```
 
-With `v0.1.0`, workers appear as `Test / 1 of 8`.
-
 ### Minitest
 
-Use `.github/workflows/minitest.yml` instead of `rspec.yml` with a matching gem version that includes Minitest support. The default pattern is `test/**/*_test.rb`; `rspec-options` is not available.
+Minitest matches `test/**/*_test.rb` by default; `rspec-options` is not available.
 
 If your test boot calls `Bundler.require`, use this Gemfile entry instead of `require: false`:
 
 ```ruby
-gem 'parallel_tests-ci', require: 'parallel_tests/ci/minitest'
+gem 'parallel_tests-ci', '0.2.0', require: 'parallel_tests/ci/minitest'
 ```
 
 If your suite only uses `bundle exec`, add `require 'parallel_tests/ci/minitest'` to `test_helper.rb` instead. Either way, the timing hook only activates in shard workers.
+
+Add `.github/workflows/test.yml`:
+
+```yaml
+name: Test
+on: [push, pull_request]
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  test:
+    name: Test
+    uses: dblock/parallel_tests-ci/.github/workflows/minitest.yml@v0.2.0
+    with:
+      shards: 8
+```
 
 ### Standalone Shard Matrix Action
 

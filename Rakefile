@@ -7,6 +7,7 @@ require 'tmpdir'
 require 'ruby-gem-release/workflow/ruby_gem'
 require 'ruby-gem-release/changelog'
 require_relative 'lib/parallel_tests/ci/version'
+require_relative 'tasks/release_version'
 
 Bundler::GemHelper.install_tasks
 RSpec::Core::RakeTask.new(:spec)
@@ -32,7 +33,7 @@ task package: :build do
 end
 
 RubyGemRelease::Workflow::RubyGem.new(
-  version: RubyGemRelease::Version::RubyConstant.new(path: 'lib/parallel_tests/ci/version.rb', constant: 'VERSION'),
+  version: ReleaseVersion.new(path: 'lib/parallel_tests/ci/version.rb', constant: 'VERSION'),
   changelog: RubyGemRelease::Changelog::Intridea.new
 ).install_tasks
 
