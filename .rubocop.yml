@@ -32,8 +32,8 @@ Prose/MaxLength:
 
 RSpec/Output:
   Exclude:
-    # This installed-consumer executable reports success to its parent process.
-    - spec/fixtures/consumer/verify.rb
+    # These installed-consumer executables report success to their parent process.
+    - 'spec/fixtures/consumer/verify_*.rb'
 
 RSpec:
   Exclude:

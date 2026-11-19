@@ -15,6 +15,7 @@
 - [#34](https://github.com/dblock/parallel_tests-ci/pull/34): Select automatic, file size, or runtime grouping in workflows and the standalone action - [@dblock](https://github.com/dblock).
 - [#36](https://github.com/dblock/parallel_tests-ci/pull/36): Add a complete Minitest workflow example and keep release references current - [@dblock](https://github.com/dblock).
 - [#38](https://github.com/dblock/parallel_tests-ci/pull/38): Replace `rspec-options` with framework-neutral `test-options` for RSpec and Minitest - [@dblock](https://github.com/dblock).
+- [#39](https://github.com/dblock/parallel_tests-ci/pull/39): Separate installed-consumer checks by framework - [@dblock](https://github.com/dblock).
 - Your contribution here.
 
 ## 0.1.0 (2026/11/19)
