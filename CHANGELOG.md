@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.1 (Next)
+
+- Your contribution here.
+
 ## 0.1.0 (2026/11/19)
 
 - [#2](https://github.com/dblock/parallel_tests-ci/pull/2): Add runtime-balanced RSpec shards and automatic trusted timing history - [@dblock](https://github.com/dblock).
