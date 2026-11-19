@@ -44,36 +44,36 @@ If you manage your own CI jobs, see the [standalone test workflow](.github/workf
 
 ### Runners and Execution
 
-| Input             | Default         | Purpose                                                                       |
-| ---               | ---             | ---                                                                           |
-| `runs-on`         | `ubuntu-latest` | Runner label or JSON label array for all jobs; Linux and macOS supported.     |
-| `timeout-minutes` | `360`           | Minutes per job, including setup; positive integer, subject to runner limits. |
-| `max-parallel`    | `256`           | Concurrent workers (1-256), subject to runner availability.                   |
-| `fail-fast`       | `false`         | Cancel other workers when a worker fails.                                     |
-| `fetch-depth`     | `1`             | Checkout history depth in all jobs; `0` fetches all history and tags.         |
-| `ruby-version`    | Empty           | Override the caller's Ruby version file.                                      |
-| `bundler-cache`   | `true`          | Cache gems in all jobs; `false` still installs gems.                          |
+| Input             | Default         | Purpose                                             |
+| ---               | ---             | ---                                                 |
+| `runs-on`         | `ubuntu-latest` | Runner label or JSON label array for all jobs.      |
+| `timeout-minutes` | `360`           | Minutes per job, including setup; positive integer. |
+| `max-parallel`    | `256`           | Concurrent worker limit (1-256).                    |
+| `fail-fast`       | `false`         | Cancel remaining workers on failure.                |
+| `fetch-depth`     | `1`             | Checkout depth; `0` gets all history and tags.      |
+| `ruby-version`    | Empty           | Override the caller's Ruby version.                 |
+| `bundler-cache`   | `true`          | Cache gems; `false` still installs them.            |
 
 ### Suite and Setup
 
-| Input           | Default                           | Purpose                                          |
-| ---             | ---                               | ---                                              |
-| `shards`        | `4`                               | Workers (1-256), capped at matching file count.  |
-| `worker-name`   | `{shard.number} of {shard.count}` | Worker label template; empty uses the default.   |
-| `pattern`       | `spec/**/*_spec.rb`               | Repository-relative spec glob.                   |
-| `rspec-options` | `[]`                              | JSON array of RSpec arguments.                   |
-| `environment`   | `{}`                              | JSON object of non-secret environment variables. |
-| `before-bundle` | Empty                             | Shell setup before gems in every job.            |
-| `setup`         | Empty                             | Shell setup before specs in each worker.         |
+| Input           | Default                           | Purpose                                     |
+| ---             | ---                               | ---                                         |
+| `shards`        | `4`                               | Workers (1-256), capped at spec file count. |
+| `worker-name`   | `{shard.number} of {shard.count}` | Worker label template.                      |
+| `pattern`       | `spec/**/*_spec.rb`               | Repository-relative spec glob.              |
+| `rspec-options` | `[]`                              | RSpec arguments as a JSON array.            |
+| `environment`   | `{}`                              | Non-secret env vars as a JSON object.       |
+| `before-bundle` | Empty                             | Shell setup before gem install in all jobs. |
+| `setup`         | Empty                             | Shell setup before specs in each worker.    |
 
 ### Artifacts
 
-| Input                     | Default             | Purpose                                                                              |
-| ---                       | ---                 | ---                                                                                  |
-| `artifacts`               | Empty               | Extra files to retain, including hidden files and failure diagnostics.               |
-| `artifact-prefix`         | `parallel-tests-ci` | Unique per call; letters, numbers, underscores, and hyphens only.                    |
-| `artifact-retention-days` | `30`                | Days to retain plans, measurements, and test artifacts; `0` uses repository default. |
-| `baseline-retention-days` | `90`                | Days to retain trusted history; `0` uses repository default.                         |
+| Input                     | Default             | Purpose                                             |
+| ---                       | ---                 | ---                                                 |
+| `artifacts`               | Empty               | Extra files to keep, even on failure.               |
+| `artifact-prefix`         | `parallel-tests-ci` | Artifact name prefix; unique per call.              |
+| `artifact-retention-days` | `30`                | Days to keep run artifacts; `0` uses repo default.  |
+| `baseline-retention-days` | `90`                | Days to keep timing history; `0` uses repo default. |
 
 See [Workflow Inputs](DESIGN.md#workflow-inputs) for templates, secret environments, and setup rules, and [Plans and Retries](DESIGN.md#plans-and-retries) for rerun behavior.
 
