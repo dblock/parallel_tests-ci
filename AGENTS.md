@@ -22,6 +22,6 @@ Run `bundle exec rake spec lint`; add `bundle exec rake package` for public-entr
 
 Keep Test, Lint, and Package separate; retain Coveralls, real subprocesses, and installed-consumer tests. Inspect line and branch gaps without trivial coverage assertions or runtime exclusions.
 
-Authorized manual release automation pushes release metadata and the next development version directly to `master`. Branch rules permit fast-forward pushes by all writers but block force pushes and deletion with no bypass actors; ordinary development still uses PRs. The `release` environment requires @dblock approval and accepts only `master`.
+Authorized manual release automation pushes release metadata and the next development version directly to `master`. Branch rules permit fast-forward pushes by all writers but block force pushes and deletion with no bypass actors; ordinary development still uses PRs. The `release` environment accepts only `master` and has no deployment approval requirement.
 
 Use concise, single-line Markdown paragraphs and Title Case headings/display names. Review `.spellcheck.txt` additions and keep lint exceptions narrow. Preserve artwork sources, provenance, and rendering instructions. Do not merge, publish, tag, or change authentication without explicit authorization.

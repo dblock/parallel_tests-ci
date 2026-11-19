@@ -34,7 +34,7 @@ CI tests the Ruby minimum/current release and calls the shared workflow for defa
 
 Use `<username>/<topic>` branches in `~/source/parallel_tests-ci/master`; sibling worktrees are for parallel tasks only. Inspect status and worktree ownership before switching; preserve unrelated changes.
 
-Authorized manual release automation pushes release metadata and the next development version directly to `master`. Branch rules allow fast-forward pushes by all writers while blocking force pushes and deletion with no bypass actors; this does not change the ordinary development PR policy. The `release` environment requires @dblock approval and accepts only `master`.
+Authorized manual release automation pushes release metadata and the next development version directly to `master`. Branch rules allow fast-forward pushes by all writers while blocking force pushes and deletion with no bypass actors; this does not change the ordinary development PR policy. The `release` environment accepts only `master` and has no deployment approval requirement.
 
 Keep one coherent commit per PR. Stack dependent PRs against their immediate predecessor and preserve native stack membership. Use rebase merges only, with explicit merge authorization. Include `Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>` in AI-assisted commits and disclose AI authorship on behalf of @dblock in PRs/comments.
 

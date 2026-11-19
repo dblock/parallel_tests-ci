@@ -2,6 +2,7 @@
 
 ## 0.1.1 (Next)
 
+- [#17](https://github.com/dblock/parallel_tests-ci/pull/17): Remove the release environment approval gate while retaining the master-only restriction - [@dblock](https://github.com/dblock).
 - Your contribution here.
 
 ## 0.1.0 (2026/11/19)
