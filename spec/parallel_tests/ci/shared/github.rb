@@ -11,7 +11,8 @@ RSpec.shared_context 'with GitHub workflow inputs' do
   end
 
   let(:base_inputs) do
-    { 'artifact-prefix' => 'test-ci', 'pattern' => 'suite/*.rb', 'shards' => 1, 'test-options' => '[]' }
+    { 'artifact-prefix' => 'test-ci', 'pattern' => 'suite/*.rb', 'shards' => 1, 'test-options' => '[]',
+      'framework' => 'rspec' }
   end
 
   let(:inputs) { base_inputs }

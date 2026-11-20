@@ -1,6 +1,10 @@
 # Upgrading
 
-## 0.1.0 To 0.2.0
+<!-- # rubocop:disable Markdown/HeadingCapitalization -- The version number is the final heading element. -->
+
+## Upgrading to 0.2.0
+
+<!-- # rubocop:enable Markdown/HeadingCapitalization -->
 
 Update the gem and reusable workflow to matching 0.2.0 versions. If you use `rspec-options`, rename it to `test-options`; the value remains a JSON array of RSpec arguments.
 

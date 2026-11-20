@@ -5,7 +5,9 @@ require_relative '../lib/parallel_tests/ci'
 
 Dir.mktmpdir('parallel-tests-ci-matrix') do |directory|
   history = ENV.fetch('PTCI_RUNTIME_LOG')
-  run = ParallelTests::CI::Run.prepare(directory: directory, pattern: ENV.fetch('PTCI_PATTERN'),
+  pattern = ENV.fetch('PTCI_PATTERN')
+  run = ParallelTests::CI::Run.prepare(directory: directory, pattern: pattern.empty? ? nil : pattern,
+                                       framework: ENV.fetch('PTCI_FRAMEWORK', 'rspec'),
                                        shards: ENV.fetch('PTCI_SHARDS'), history: history.empty? ? nil : history,
                                        group_by: ENV.fetch('PTCI_GROUP_BY', 'auto'))
   File.open(ENV.fetch('GITHUB_OUTPUT'), 'a') do |output|

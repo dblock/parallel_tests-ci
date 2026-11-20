@@ -41,9 +41,7 @@ module ParallelTests
         sizes = discover(pattern)
         raise ArgumentError, "No #{runner.file_kind} files match #{pattern.inspect}" if sizes.empty?
 
-        plan = { 'pattern' => pattern, 'sizes' => sizes }
-        plan['framework'] = framework unless framework == 'rspec'
-        plan
+        { 'pattern' => pattern, 'sizes' => sizes, 'framework' => framework }
       end
 
       def self.grouping(requested, known, total)
@@ -148,7 +146,7 @@ module ParallelTests
       end
 
       def runner
-        Runners.fetch(plan.fetch('framework', 'rspec'))
+        Runners.fetch(plan.fetch('framework'))
       end
 
       def execute_shard(index, output, env)

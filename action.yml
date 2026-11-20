@@ -1,12 +1,15 @@
 name: Parallel Tests CI Shard Matrix
-description: Assign RSpec files to GitHub Actions matrix jobs using file sizes or past runtimes.
+description: Assign RSpec or Minitest files to GitHub Actions matrix jobs using file sizes or past runtimes.
 branding:
   icon: grid
   color: green
 inputs:
+  framework:
+    description: Test framework, either rspec or minitest.
+    default: rspec
   pattern:
-    description: Repository-relative glob for RSpec files.
-    default: 'spec/**/*_spec.rb'
+    description: Repository-relative test glob; empty uses the selected framework's default.
+    default: ''
   shards:
     description: Maximum number of shards, from 1 to 256.
     default: '4'
@@ -26,11 +29,12 @@ outputs:
 runs:
   using: composite
   steps:
-    - name: Plan RSpec Shards
+    - name: Plan Test Shards
       id: plan
       shell: bash
       env:
         PTCI_ACTION_PATH: ${{ github.action_path }}
+        PTCI_FRAMEWORK: ${{ inputs.framework }}
         PTCI_PATTERN: ${{ inputs.pattern }}
         PTCI_SHARDS: ${{ inputs.shards }}
         PTCI_GROUP_BY: ${{ inputs.group-by }}

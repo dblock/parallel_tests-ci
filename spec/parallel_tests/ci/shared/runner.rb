@@ -39,6 +39,11 @@ RSpec.shared_context 'with a framework suite' do
 end
 
 RSpec.shared_examples 'a framework runner' do
+  it 'persists the selected framework in its plan' do
+    described_class.prepare(directory: 'plan', framework: suite.fetch(:framework), pattern: suite.fetch(:pattern))
+    expect(described_class.new('plan').plan.fetch('framework')).to eq(suite.fetch(:framework))
+  end
+
   it 'collects a cold baseline and reuses it to run every file once in the warm suite', :aggregate_failures do
     expect(run_suite('cold')).to eq('filesize')
     expect(observed_lines.sort).to eq(%w[first second])
@@ -62,5 +67,29 @@ RSpec.shared_examples 'a framework runner' do
     expect(prepared.run(shard: 1, attempt: 1, directory: 'results/1', env: { 'PTCI_OBSERVED' => observed })).to eq(0)
     expect(observed_lines).to eq(['first'])
     expect(prepared.collect(directory: 'results', output: 'baseline.log').keys).to suite.fetch(:timings)
+  end
+
+  it 'ignores usable history in filesize mode and still collects fresh timings', :aggregate_failures do
+    files = suite.fetch(:files)
+    File.write('history.log', "#{files.first}:1\n#{files.last}:2\n")
+    prepared = described_class.prepare(directory: 'plan', framework: suite.fetch(:framework),
+                                       pattern: suite.fetch(:pattern), history: 'history.log', group_by: 'filesize')
+    expect(prepared.plan.fetch('group_by')).to eq('filesize')
+    expect(File.read('plan/runtime.log')).to be_empty
+    run_shards(prepared)
+    timings = prepared.collect(directory: 'results', output: 'baseline.log')
+    expect(timings.keys).to match_array(files)
+  end
+
+  it 'uses one runtime snapshot and upstream unknown-duration estimation for new files', :aggregate_failures do
+    first = suite.fetch(:files).first
+    File.write('history.log', "#{first}:0\n")
+    prepared = described_class.prepare(directory: 'plan', framework: suite.fetch(:framework),
+                                       pattern: suite.fetch(:pattern), shards: 2, history: 'history.log',
+                                       test_options: ['--seed', '123'])
+    expect(prepared.plan.fetch('group_by')).to eq('runtime')
+    run_shards(prepared)
+    expect(observed_lines.sort).to eq(%w[first second])
+    expect(File.read('plan/runtime.log')).to eq("#{first}:0.0\n")
   end
 end

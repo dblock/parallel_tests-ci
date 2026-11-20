@@ -20,7 +20,7 @@ RSpec.describe 'Framework workflow contract' do # rubocop:disable RSpec/Describe
 
   {
     'rspec' => { 'pattern' => 'spec/**/*_spec.rb', 'artifact-prefix' => 'parallel-tests-ci' },
-    'minitest' => { 'pattern' => 'test/**/*_test.rb', 'artifact-prefix' => 'parallel-tests-ci-minitest' }
+    'minitest' => { 'pattern' => 'test/**/*_test.rb', 'artifact-prefix' => 'parallel-tests-ci' }
   }.each do |framework, defaults|
     context "with #{framework}" do
       let(:wrapper) { workflow(framework) }

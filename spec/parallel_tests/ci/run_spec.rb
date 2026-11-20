@@ -26,6 +26,14 @@ RSpec.describe ParallelTests::CI::Run, :aggregate_failures do
     expect(prepared.plan.fetch('group_by')).to eq('filesize')
   end
 
+  it 'rejects a persisted plan without a framework' do
+    prepared = run
+    plan = prepared.plan.except('framework')
+    File.write('plan/plan.json', JSON.generate(plan))
+    expect { described_class.new('plan').run(shard: 1, attempt: 1, directory: 'result') }
+      .to raise_error(KeyError, /framework/)
+  end
+
   it 'assigns each cold-start file to a nonempty matrix entry' do
     prepared = described_class.prepare(directory: 'plan', pattern: 'suite/*.rb', shards: 8)
     entries = prepared.file_matrix

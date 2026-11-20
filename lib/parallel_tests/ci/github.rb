@@ -80,7 +80,7 @@ module ParallelTests
       def plan_settings(inputs)
         { pattern: inputs.fetch('pattern'), shards: inputs.fetch('shards'),
           test_options: JSON.parse(inputs.fetch('test-options', '[]')),
-          framework: inputs.fetch('framework', 'rspec'), group_by: inputs.fetch('group-by', 'auto') }
+          framework: inputs.fetch('framework'), group_by: inputs.fetch('group-by', 'auto') }
       end
 
       def worker_matrix(run, inputs:)
