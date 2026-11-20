@@ -12,17 +12,7 @@ RSpec.shared_context 'with a temporary project' do
   end
 
   def copy_suite(fixture, destination)
-    FileUtils.cp_r(File.expand_path("fixtures/#{fixture}", __dir__), destination)
-  end
-
-  def observed_lines
-    File.exist?(observed) ? File.readlines(observed, chomp: true) : []
-  end
-
-  def expect_shard_assignment(prepared, shard, before:, suffix:)
-    assignment = prepared.file_matrix.find { |entry| entry.fetch(:shard) == shard }
-    files = assignment ? assignment.fetch(:files) : []
-    expect(observed_lines.drop(before)).to match_array(files.map { |file| File.basename(file, suffix) })
+    FileUtils.cp_r(File.expand_path("parallel_tests/ci/#{fixture}/suite", __dir__), destination)
   end
 end
 

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative '../../support/github'
+require_relative 'shared/github'
 
 RSpec.describe ParallelTests::CI::GitHub, :aggregate_failures do
   include_context 'with GitHub workflow inputs'

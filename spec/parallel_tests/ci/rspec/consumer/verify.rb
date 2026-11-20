@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require_relative 'support'
+require_relative '../../consumer/support'
 
 Consumer.installed_package
-fixture = File.expand_path('../rspec', __dir__)
+fixture = File.expand_path('../suite', __dir__)
 Consumer.in_temporary_directory do
   FileUtils.cp_r(fixture, 'spec')
   inputs = { 'artifact-prefix' => 'consumer', 'pattern' => 'spec/*.rb', 'shards' => 8,

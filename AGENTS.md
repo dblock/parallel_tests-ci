@@ -4,7 +4,7 @@ Read [Contributing](CONTRIBUTING.md) for validation, CI, and PR rules, [Design](
 
 ## Scope and Layout
 
-Runtime: `lib/parallel_tests/ci/`. Specs: `spec/parallel_tests/ci/`. Synthetic suites and installed consumer: `spec/fixtures/`. Workflows: `.github/workflows/`. Support Ruby 3.3+; use `.ruby-version` for development.
+Runtime: `lib/parallel_tests/ci/`. Specs, synthetic suites, and installed-consumer checks: `spec/parallel_tests/ci/`. Workflows: `.github/workflows/`. Support Ruby 3.3+; use `.ruby-version` for development.
 
 Use the documented `parallel_tests` API for partitioning, timing, and unknown-runtime estimation for RSpec and Minitest. Do not add a scheduler, patch dependencies, parse console output as an API, or introduce other providers or a public CLI.
 

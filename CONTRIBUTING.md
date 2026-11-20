@@ -24,7 +24,7 @@ Use single-line Markdown paragraphs and Title Case for headings and workflow, jo
 
 ## Tests
 
-Specs live in `spec/parallel_tests/ci/`; synthetic suites in `spec/fixtures/rspec/` omit `_spec.rb` so they run only in subprocesses. The scripts in `spec/fixtures/consumer/` separately exercise the installed archive with RSpec, Minitest, and framework detection. Use real subprocesses for execution and stub GitHub CLI responses at API boundaries. Keep tests offline, with owned temporary directories and isolated release remotes.
+Framework-neutral specs live in `spec/parallel_tests/ci/`, with shared examples in `shared/` and framework-specific specs, suites, and consumer checks in their respective framework directories. Synthetic RSpec suite files omit `_spec.rb` so they run only in subprocesses; `consumer/verify_frameworks.rb` checks cross-framework detection against the installed archive. Use real subprocesses for execution and stub GitHub CLI responses at API boundaries. Keep tests offline, with owned temporary directories and isolated release remotes.
 
 Inspect `coverage/index.html` for line/branch gaps; raw data is in `coverage/.resultset.json` and LCOV in `coverage/lcov.info`. Cover errors and edge cases, not trivial assertions; do not exclude runtime code. Package validation removes its temporary consumer; archives remain in ignored `pkg/`.
 

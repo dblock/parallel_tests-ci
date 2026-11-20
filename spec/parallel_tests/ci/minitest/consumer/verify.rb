@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-require_relative 'support'
+require_relative '../../consumer/support'
 
 package = Consumer.installed_package
 consumer_env = { 'PTCI_CONSUMER_VERSION' => package.version.to_s }
 Consumer.in_temporary_directory do
-  FileUtils.cp_r(File.expand_path('../minitest', __dir__), 'test')
+  FileUtils.cp_r(File.expand_path('../suite', __dir__), 'test')
   minitest_run = ParallelTests::CI::Run.prepare(directory: 'minitest-plan', framework: 'minitest', shards: 1,
                                                 test_options: ['--name', '/test_first|no match/'])
   env = { 'PTCI_OBSERVED' => File.expand_path('minitest-observed.txt') }
@@ -18,7 +18,7 @@ Consumer.in_temporary_directory do
     abort "Installed Minitest shard produced #{observed.inspect} and #{minitest_timings.keys.inspect}"
   end
 
-  FileUtils.cp(File.expand_path('minitest_explicit/Gemfile', __dir__), 'Gemfile')
+  FileUtils.cp(File.expand_path('explicit/Gemfile', __dir__), 'Gemfile')
   boot = 'require "bundler"; Bundler.require'
   [nil, ''].each do |value|
     unless system(consumer_env.merge('PTCI_RUNTIME_LOG' => value), Gem.ruby, '-e',
@@ -26,7 +26,7 @@ Consumer.in_temporary_directory do
       abort 'Gemfile require loaded Minitest without a timing output path'
     end
   end
-  FileUtils.cp(File.expand_path('minitest_explicit/timed_test.rb', __dir__), 'timed_test.rb')
+  FileUtils.cp(File.expand_path('explicit/timed_test.rb', __dir__), 'timed_test.rb')
   timed_run = "#{boot}; require_relative 'timed_test'; exit Minitest.run"
   unless system(consumer_env.merge('PTCI_RUNTIME_LOG' => 'minitest.log'), Gem.ruby, '-e', timed_run) &&
          ParallelTests::CI::RuntimeLog.read('minitest.log').keys == ['timed_test.rb']
