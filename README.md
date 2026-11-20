@@ -6,29 +6,19 @@
 
 Runtime-balanced RSpec and Minitest shards for GitHub Actions, powered by [parallel_tests](https://github.com/grosser/parallel_tests). Timing history is collected and reused automatically.
 
-## Installation
-
-Requires Ruby 3.3+ and either RSpec or Minitest 5. Add to your Gemfile and run `bundle install`:
-
-```ruby
-gem 'parallel_tests-ci', '0.2.0', require: false
-```
-
 ## Usage
 
-Ruby comes from your version file; workers use Ubuntu by default. The first run groups by file size. Successful default-branch pushes supply timings for later runs; PRs read them without updating history. Shard count is capped at the number of matching files. Keep gem and workflow versions matched.
-
-`require 'parallel_tests-ci'` (including the default `Bundler.require` behavior) selects the framework already loaded. It raises `LoadError` if neither or both are loaded. Use an explicit require below to avoid depending on load order or to select a framework when both are loaded.
+Requires Ruby 3.3+ and either RSpec or Minitest 5.
 
 ### RSpec
 
-RSpec matches `spec/**/*_spec.rb` by default and records timings automatically; no changes to `spec_helper.rb` are needed.
-
-If your test boot calls `Bundler.require` and you want to select RSpec explicitly, use this Gemfile entry:
+Add to your Gemfile and run `bundle install`:
 
 ```ruby
 gem 'parallel_tests-ci', '0.2.0', require: 'parallel_tests/ci/rspec'
 ```
+
+RSpec matches `spec/**/*_spec.rb` by default and records timings automatically; no changes to `spec_helper.rb` are needed.
 
 Add `.github/workflows/test.yml`:
 
@@ -50,15 +40,13 @@ jobs:
 
 ### Minitest
 
-Minitest matches `test/**/*_test.rb` by default.
-
-If your test boot calls `Bundler.require`, use this Gemfile entry instead of `require: false`:
+Add to your Gemfile and run `bundle install`:
 
 ```ruby
 gem 'parallel_tests-ci', '0.2.0', require: 'parallel_tests/ci/minitest'
 ```
 
-If your suite only uses `bundle exec`, add `require 'parallel_tests/ci/minitest'` to `test_helper.rb` instead. Either way, the timing hook only activates in shard workers.
+Minitest matches `test/**/*_test.rb` by default. If your test boot does not call `Bundler.require`, add `require 'parallel_tests/ci/minitest'` to `test_helper.rb`. The timing hook only activates in shard workers.
 
 Add `.github/workflows/test.yml`:
 
@@ -80,9 +68,13 @@ jobs:
 
 ### Standalone Shard Matrix Action
 
-If you manage your own CI jobs, see the [standalone test workflow](.github/workflows/test-standalone.yml) for how to plan shards and run the assigned specs. Replace `uses: ./` with `uses: dblock/parallel_tests-ci@<ref>` in your workflow.
+If you manage your own CI jobs, use [the standalone action](DESIGN.md#standalone-shard-matrix-action) to plan RSpec or Minitest shards. It defaults to RSpec; set `framework: minitest` for Minitest. See the [RSpec](.github/workflows/test-standalone-rspec.yml) and [Minitest](.github/workflows/test-standalone-minitest.yml) examples, replacing `uses: ./` with `uses: dblock/parallel_tests-ci@v0.2.0`. Unlike the reusable workflows, the standalone action only assigns files to shards; your workflow runs the tests and manages timing history.
 
 ## Configuration
+
+The workflow uses Ruby from your version file and defaults to Ubuntu. The first run groups tests by file size. Successful pushes on the default branch record timings for later runs, and PRs read them without updating history.
+
+These inputs configure the reusable workflows.
 
 ### Runners and Execution
 
@@ -98,15 +90,15 @@ If you manage your own CI jobs, see the [standalone test workflow](.github/workf
 
 ### Suite and Setup
 
-| Input           | Default                           | Purpose                                     |
-| ---             | ---                               | ---                                         |
-| `shards`        | `4`                               | Workers (1-256), capped at spec file count. |
-| `worker-name`   | `{shard.number} of {shard.count}` | Worker label template.                      |
-| `pattern`       | `spec/**/*_spec.rb`               | Repository-relative spec glob.              |
-| `test-options`  | `[]`                              | Test framework arguments as a JSON array.   |
-| `environment`   | `{}`                              | Non-secret env vars as a JSON object.       |
-| `before-bundle` | Empty                             | Shell setup before gem install in all jobs. |
-| `setup`         | Empty                             | Shell setup before specs in each worker.    |
+| Input           | Default                                                     | Purpose                                     |
+| ---             | ---                                                         | ---                                         |
+| `shards`        | `4`                                                         | Workers (1-256), capped at test file count. |
+| `worker-name`   | `{shard.number} of {shard.count}`                           | Worker label template.                      |
+| `pattern`       | `spec/**/*_spec.rb` (RSpec), `test/**/*_test.rb` (Minitest) | Repository-relative test glob.              |
+| `test-options`  | `[]`                                                        | Test framework arguments as a JSON array.   |
+| `environment`   | `{}`                                                        | Non-secret env vars as a JSON object.       |
+| `before-bundle` | Empty                                                       | Shell setup before gem install in all jobs. |
+| `setup`         | Empty                                                       | Shell setup before tests in each worker.    |
 
 Use arguments supported by the selected framework, for example `test-options: '["--seed","123"]'`.
 

@@ -6,7 +6,7 @@ Consumer.installed_package
 fixture = File.expand_path('../suite', __dir__)
 Consumer.in_temporary_directory do
   FileUtils.cp_r(fixture, 'spec')
-  inputs = { 'artifact-prefix' => 'consumer', 'pattern' => 'spec/*.rb', 'shards' => 8,
+  inputs = { 'artifact-prefix' => 'consumer', 'framework' => 'rspec', 'pattern' => 'spec/*.rb', 'shards' => 8,
              'test-options' => JSON.generate(['--seed', '123']),
              'worker-name' => 'Installed "{shard.number}"/{shard.count} ({plan.group_by})' }
   environment = { 'GITHUB_OUTPUT' => 'outputs', 'GITHUB_RUN_ATTEMPT' => '1', 'PTCI_INPUTS' => JSON.generate(inputs) }

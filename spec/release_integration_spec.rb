@@ -37,9 +37,12 @@ RSpec.describe 'Release references' do # rubocop:disable RSpec/DescribeClass -- 
       RUBY
       project.commit!
       project.release!(version: '0.3.0')
-      expect(project.remote_file('v0.3.0', 'README.md')).to include('rspec.yml@v0.2.0')
+      expect(project.remote_file('v0.3.0', 'README.md')).to include(
+        'rspec.yml@v0.2.0', '`uses: dblock/parallel_tests-ci@v0.2.0`'
+      )
       expect(project.remote_file('master', 'README.md')).to include(
-        'rspec.yml@v0.3.0', 'minitest.yml@v0.3.0', "gem 'parallel_tests-ci', '0.3.0'"
+        'rspec.yml@v0.3.0', 'minitest.yml@v0.3.0', "gem 'parallel_tests-ci', '0.3.0'",
+        '`uses: dblock/parallel_tests-ci@v0.3.0`'
       )
     end
   end

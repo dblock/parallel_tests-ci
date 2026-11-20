@@ -70,7 +70,7 @@ on:
       artifact-prefix:
         description: Unique prefix when calling this workflow more than once.
         type: string
-        default: parallel-tests-ci-minitest
+        default: parallel-tests-ci
       artifact-retention-days:
         description: Retention for plans, measurements, and test artifacts (0 uses repository default).
         type: number

@@ -136,6 +136,10 @@ RSpec.describe ParallelTests::CI::GitHub, :aggregate_failures do
     expect(File).not_to exist('tmp/parallel_tests_ci/plan/plan.json')
   end
 
+  it 'requires an explicit framework in workflow inputs' do
+    expect { described_class.prepare(inputs: inputs.except('framework')) }.to raise_error(KeyError, /framework/)
+  end
+
   it 'propagates a failed shard without publishing success outputs' do
     runner = instance_double(ParallelTests::CI::Run, run: 17)
     allow(ParallelTests::CI::Run).to receive(:new).with('tmp/parallel_tests_ci/plan').and_return(runner)

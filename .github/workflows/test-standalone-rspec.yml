@@ -1,0 +1,79 @@
+name: Test Standalone RSpec Action
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  plan_standalone:
+    name: Plan With Standalone RSpec Action
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+    steps:
+      - name: Check Out Code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set Up Ruby
+        uses: ruby/setup-ruby@f9c4492e86def3e644ab32a0ef185eda5b0c20d0 # v1.342.0
+        with:
+          ruby-version: '4.0'
+          bundler-cache: true
+      - name: Write Fixture Timings
+        run: printf 'spec/parallel_tests/ci/rspec/suite/first.rb:4\nspec/parallel_tests/ci/rspec/suite/second.rb:2\n' > "$RUNNER_TEMP/fixture-timings.log"
+      - name: Plan Shards
+        id: plan
+        uses: ./
+        with:
+          pattern: spec/parallel_tests/ci/rspec/suite/*.rb
+          shards: '2'
+          group-by: runtime
+          runtime-log: ${{ runner.temp }}/fixture-timings.log
+      - name: Check Selected Grouping
+        env:
+          GROUP_BY: ${{ steps.plan.outputs.group-by }}
+        run: test "$GROUP_BY" = runtime
+      - name: Check Assigned Files
+        env:
+          MATRIX: ${{ steps.plan.outputs.matrix }}
+        run: >-
+          bundle exec ruby -rjson -e 'files = JSON.parse(ENV.fetch("MATRIX")).flat_map { |entry| entry.fetch("files") };
+          abort "Unexpected assigned specs" unless files.sort == %w[spec/parallel_tests/ci/rspec/suite/first.rb spec/parallel_tests/ci/rspec/suite/second.rb]'
+
+  run_standalone:
+    name: Run Standalone RSpec Shard ${{ matrix.entry.shard }}
+    needs: plan_standalone
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        entry: ${{ fromJSON(needs.plan_standalone.outputs.matrix) }}
+    steps:
+      - name: Check Out Code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set Up Ruby
+        uses: ruby/setup-ruby@f9c4492e86def3e644ab32a0ef185eda5b0c20d0 # v1.342.0
+        with:
+          ruby-version: '4.0'
+          bundler-cache: true
+      - name: Run Assigned Specs
+        env:
+          SPEC_FILES: ${{ toJSON(matrix.entry.files) }}
+          PTCI_OBSERVED: ${{ runner.temp }}/standalone-observed.txt
+        run: >-
+          bundle exec ruby -rjson -e 'exec Gem.ruby, "-S", "rspec", "--",
+          *JSON.parse(ENV.fetch("SPEC_FILES")).map { |file| "./#{file}" }'
+      - name: Verify Assigned Specs Ran
+        env:
+          SPEC_FILES: ${{ toJSON(matrix.entry.files) }}
+          PTCI_OBSERVED: ${{ runner.temp }}/standalone-observed.txt
+        run: >-
+          bundle exec ruby -rjson -e 'expected = JSON.parse(ENV.fetch("SPEC_FILES")).map { |file| File.basename(file, ".rb") };
+          abort "Unexpected executed specs" unless File.readlines(ENV.fetch("PTCI_OBSERVED"), chomp: true).sort == expected.sort'
