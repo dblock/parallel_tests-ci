@@ -17,7 +17,7 @@ jobs:
       ruby-version: '4.0'
       shards: 8
       worker-name: 'RSpec {shard.number}/{shard.count} ({plan.group_by})'
-      pattern: spec/fixtures/rspec/*.rb
+      pattern: spec/parallel_tests/ci/rspec/suite/*.rb
       test-options: '["--seed","123"]'
       artifact-prefix: integration-templates
       environment: '{"PTCI_OBSERVED":"tmp/parallel_tests_ci/observed.txt"}'
@@ -29,7 +29,7 @@ jobs:
     with:
       ruby-version: '4.0'
       shards: 2
-      pattern: spec/fixtures/minitest/*_test.rb
+      pattern: spec/parallel_tests/ci/minitest/suite/*_test.rb
       test-options: '["--seed","123"]'
       worker-name: 'Minitest {shard.number}/{shard.count} ({plan.group_by})'
       environment: '{"PTCI_OBSERVED":"tmp/parallel_tests_ci/observed.txt"}'
@@ -40,10 +40,10 @@ jobs:
       fail-fast: false
       matrix:
         entry:
-          - { framework: rspec, pattern: 'spec/fixtures/rspec/*.rb', runner: '["ubuntu-latest"]', kernel: Linux, cache: false }
-          - { framework: rspec, pattern: 'spec/fixtures/rspec/*.rb', runner: macos-latest, kernel: Darwin, cache: true }
-          - { framework: minitest, pattern: 'spec/fixtures/minitest/*_test.rb', runner: '["ubuntu-latest"]', kernel: Linux, cache: false }
-          - { framework: minitest, pattern: 'spec/fixtures/minitest/*_test.rb', runner: macos-latest, kernel: Darwin, cache: true }
+          - { framework: rspec, pattern: 'spec/parallel_tests/ci/rspec/suite/*.rb', runner: '["ubuntu-latest"]', kernel: Linux, cache: false }
+          - { framework: rspec, pattern: 'spec/parallel_tests/ci/rspec/suite/*.rb', runner: macos-latest, kernel: Darwin, cache: true }
+          - { framework: minitest, pattern: 'spec/parallel_tests/ci/minitest/suite/*_test.rb', runner: '["ubuntu-latest"]', kernel: Linux, cache: false }
+          - { framework: minitest, pattern: 'spec/parallel_tests/ci/minitest/suite/*_test.rb', runner: macos-latest, kernel: Darwin, cache: true }
     uses: ./.github/workflows/shards.yml
     with:
       framework: ${{ matrix.entry.framework }}

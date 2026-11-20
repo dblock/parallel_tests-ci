@@ -33,15 +33,22 @@ Prose/MaxLength:
 RSpec/Output:
   Exclude:
     # These installed-consumer executables report success to their parent process.
-    - 'spec/fixtures/consumer/verify_*.rb'
+    - 'spec/parallel_tests/ci/*/consumer/verify.rb'
+    - spec/parallel_tests/ci/consumer/verify_frameworks.rb
 
 RSpec:
   Exclude:
     # These synthetic suites run only in subprocesses, not in the unit spec runner.
-    - 'spec/fixtures/rspec/*.rb'
+    - 'spec/parallel_tests/ci/rspec/suite/*.rb'
 
 RSpec/ExampleLength:
   Max: 10
+
+RSpec/SpecFilePathFormat:
+  Exclude:
+    # Framework-specific specs are grouped by framework before the class name.
+    - 'spec/parallel_tests/ci/*/run_spec.rb'
+    - 'spec/parallel_tests/ci/*/git_hub_spec.rb'
 
 Metrics/ClassLength:
   Exclude:

@@ -21,6 +21,7 @@
 - [#43](https://github.com/dblock/parallel_tests-ci/pull/43): Verify framework selection consistently for installed consumers - [@dblock](https://github.com/dblock).
 - [#44](https://github.com/dblock/parallel_tests-ci/pull/44): Use the shared parallel_tests runner for framework-neutral file grouping - [@dblock](https://github.com/dblock).
 - [#45](https://github.com/dblock/parallel_tests-ci/pull/45): Separate GitHub workflow specs and exercise both framework runners - [@dblock](https://github.com/dblock).
+- [#46](https://github.com/dblock/parallel_tests-ci/pull/46): Organize framework-specific specs and fixtures around shared runner contracts - [@dblock](https://github.com/dblock).
 - Your contribution here.
 
 ## 0.1.0 (2026/11/19)

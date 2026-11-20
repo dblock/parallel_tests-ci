@@ -11,21 +11,21 @@ Consumer.in_temporary_directory do
   end
 
   boot = 'require "bundler"; Bundler.require'
-  FileUtils.cp(File.expand_path('minitest_default/Gemfile', __dir__), 'Gemfile')
-  FileUtils.cp(File.expand_path('minitest_explicit/timed_test.rb', __dir__), 'timed_test.rb')
+  FileUtils.cp(File.expand_path('../minitest/consumer/default/Gemfile', __dir__), 'Gemfile')
+  FileUtils.cp(File.expand_path('../minitest/consumer/explicit/timed_test.rb', __dir__), 'timed_test.rb')
   timed_run = "#{boot}; require_relative 'timed_test'; exit Minitest.run"
   unless system(consumer_env.merge('PTCI_RUNTIME_LOG' => 'detected.log'), Gem.ruby, '-e', timed_run) &&
          ParallelTests::CI::RuntimeLog.read('detected.log').keys == ['timed_test.rb']
     abort 'Default Gemfile require did not detect Minitest and record timings'
   end
 
-  FileUtils.cp(File.expand_path('rspec_explicit/Gemfile', __dir__), 'Gemfile')
+  FileUtils.cp(File.expand_path('../rspec/consumer/explicit/Gemfile', __dir__), 'Gemfile')
   both_loaded = 'abort unless defined?(RSpec) && defined?(Minitest)'
   no_minitest_hook = "#{boot}; #{both_loaded}; abort if defined?(ParallelTests::Test::RuntimeLogger)"
   env = consumer_env.merge('PTCI_RUNTIME_LOG' => 'unused.log')
   abort 'Explicit RSpec require failed with both frameworks loaded' unless system(env, Gem.ruby, '-e', no_minitest_hook)
 
-  FileUtils.cp(File.expand_path('minitest_both/Gemfile', __dir__), 'Gemfile')
+  FileUtils.cp(File.expand_path('../minitest/consumer/both/Gemfile', __dir__), 'Gemfile')
   timed_both = "#{boot}; #{both_loaded}; require_relative 'timed_test'; exit Minitest.run"
   unless system(consumer_env.merge('PTCI_RUNTIME_LOG' => 'both.log'), Gem.ruby, '-e', timed_both) &&
          ParallelTests::CI::RuntimeLog.read('both.log').keys == ['timed_test.rb']
