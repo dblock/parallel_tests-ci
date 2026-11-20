@@ -17,8 +17,10 @@ RSpec.describe ParallelTests::CI::Run, :aggregate_failures do
   end
 
   def run_shard(prepared, label, shard)
+    before = observed_lines.size
     expect(prepared.run(shard: shard, attempt: 1, directory: "results-#{label}/#{shard}",
                         env: { 'PTCI_OBSERVED' => observed })).to eq(0)
+    expect_shard_assignment(prepared, shard, before: before, suffix: '_test.rb')
   end
 
   it 'collects a cold baseline and reuses it to run every file once in the warm suite' do

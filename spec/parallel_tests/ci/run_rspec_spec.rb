@@ -11,8 +11,10 @@ RSpec.describe ParallelTests::CI::Run, :aggregate_failures do
   def run_shards(prepared)
     prepared.matrix.each do |entry|
       shard = entry.fetch(:shard)
+      before = observed_lines.size
       expect(prepared.run(shard: shard, attempt: 1, directory: "results/#{shard}",
                           env: { 'PTCI_OBSERVED' => observed })).to eq(0)
+      expect_shard_assignment(prepared, shard, before: before, suffix: '.rb')
     end
   end
 

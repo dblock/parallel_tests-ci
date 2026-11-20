@@ -14,6 +14,16 @@ RSpec.shared_context 'with a temporary project' do
   def copy_rspec_suite
     FileUtils.cp_r(File.expand_path('fixtures/rspec', __dir__), 'spec')
   end
+
+  def observed_lines
+    File.exist?(observed) ? File.readlines(observed, chomp: true) : []
+  end
+
+  def expect_shard_assignment(prepared, shard, before:, suffix:)
+    assignment = prepared.file_matrix.find { |entry| entry.fetch(:shard) == shard }
+    files = assignment ? assignment.fetch(:files) : []
+    expect(observed_lines.drop(before)).to match_array(files.map { |file| File.basename(file, suffix) })
+  end
 end
 
 RSpec.configure do |config|

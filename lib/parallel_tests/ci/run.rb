@@ -4,7 +4,7 @@ require 'digest'
 require 'fileutils'
 require 'json'
 require 'parallel_tests'
-require 'parallel_tests/rspec/runner'
+require 'parallel_tests/test/runner'
 require_relative 'runners'
 
 module ParallelTests
@@ -91,7 +91,7 @@ module ParallelTests
       end
 
       def file_matrix
-        groups = ParallelTests::RSpec::Runner.tests_in_groups(
+        groups = ParallelTests::Test::Runner.tests_in_groups(
           plan.fetch('sizes').keys, plan.fetch('shards'),
           { group_by: plan.fetch('group_by').to_sym, runtime_log: history_path }
         )
