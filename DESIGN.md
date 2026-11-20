@@ -12,7 +12,7 @@ Each runner defines its default file glob, test command, and timing output. The 
 
 ## Standalone Shard Matrix Action
 
-The [standalone action](README.md#standalone-shard-matrix-action) uses the same file discovery, timing validation, and upstream partitioner as the reusable workflow. `framework` selects `rspec` (the default) or `minitest`; an empty `pattern` uses the selected framework's default glob. It does not create jobs, run tests, or manage timing artifacts.
+The [standalone action](README.md#standalone-shard-matrix-action) uses the same file discovery, timing validation, and upstream partitioner as the reusable workflow. `framework` selects `rspec` (the default) or `minitest`; an empty `pattern` uses the selected framework's default glob. Composite action input values are strings and are passed to Ruby together as JSON. It does not create jobs, run tests, or manage timing artifacts.
 
 Set up Ruby and install `parallel_tests` in the caller's bundle before invoking the action. The optional `runtime-log` input points to a local timing log; an empty value supplies no history. `group-by` accepts `auto` (the default), `filesize`, or `runtime`, with the same coverage requirements as the reusable workflows.
 
