@@ -1,0 +1,8 @@
+# frozen_string_literal: true
+
+source 'https://rubygems.org'
+# rubocop:disable Bundler/OrderedGems -- Load both frameworks before the explicit adapter.
+gem 'rspec'
+gem 'minitest', '~> 5.27'
+gem 'parallel_tests-ci', ENV.fetch('PTCI_CONSUMER_VERSION'), require: 'parallel_tests/ci/minitest'
+# rubocop:enable Bundler/OrderedGems

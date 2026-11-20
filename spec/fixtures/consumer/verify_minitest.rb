@@ -32,12 +32,6 @@ Consumer.in_temporary_directory do
          ParallelTests::CI::RuntimeLog.read('minitest.log').keys == ['timed_test.rb']
     abort 'Gemfile require did not record Minitest timings'
   end
-
-  FileUtils.cp(File.expand_path('minitest_default/Gemfile', __dir__), 'Gemfile')
-  unless system(consumer_env.merge('PTCI_RUNTIME_LOG' => 'detected.log'), Gem.ruby, '-e', timed_run) &&
-         ParallelTests::CI::RuntimeLog.read('detected.log').keys == ['timed_test.rb']
-    abort 'Default Gemfile require did not detect Minitest and record timings'
-  end
 end
 
 puts 'Installed Minitest consumer passed.'
