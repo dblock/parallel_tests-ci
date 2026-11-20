@@ -38,3 +38,13 @@ jobs:
           file: coverage/lcov.info
           format: lcov
           fail-on-error: false
+      - name: Test Prepared Release
+        if: matrix.entry.ruby == '4.0' && matrix.entry.os == 'ubuntu-latest'
+        run: |
+          bundle exec ruby -rdate -r./lib/parallel_tests/ci/version -rruby-gem-release/changelog -e '
+            path = "CHANGELOG.md"
+            File.write(path, File.read(path).sub("- Your contribution here.", "- Release fixture.\n- Your contribution here."))
+            release = Struct.new(:version, :date).new(ParallelTests::CI::VERSION, Date.today)
+            RubyGemRelease::Changelog::Intridea.new.release!(release)
+          '
+          bundle exec rspec spec/release_integration_spec.rb
