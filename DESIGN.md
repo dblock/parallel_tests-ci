@@ -46,11 +46,11 @@ Extra artifact paths can include hidden files and are collected even after a wor
 
 ## Workflow Inputs
 
-See [Configuration](README.md#configuration) for every input and default. Keep gem/workflow versions matched. Ruby defaults to `.ruby-version`, `.tool-versions`, or `mise.toml`; spec patterns use Ruby globs, including braces.
+See [Configuration](README.md#configuration) for every input and default. Keep gem/workflow versions matched. Ruby defaults to `.ruby-version`, `.tool-versions`, or `mise.toml`. The shared workflow uses the floating `ruby/setup-ruby@v1` tag while pinning every other action, because a pinned setup-ruby rejects Ruby releases newer than itself; spec patterns use Ruby globs, including braces.
 
 ### Runners and Execution
 
-All jobs use `runs-on`: a label such as `macos-latest` or JSON labels such as `'["self-hosted","linux","x64"]'`. Linux and macOS are supported, not Windows. Custom runners need Bash, Git, the GitHub CLI, and compatibility with the pinned actions and `ruby/setup-ruby`.
+All jobs use `runs-on`: a label such as `macos-latest` or JSON labels such as `'["self-hosted","linux","x64"]'`. Linux and macOS are supported, not Windows. Custom runners need Bash, Git, the GitHub CLI, and compatibility with the pinned actions and `ruby/setup-ruby@v1`.
 
 Job timeouts include setup and remain subject to runner limits. `max-parallel` limits concurrent workers, not total shards. `fail-fast` cannot publish an incomplete baseline. Configure workflow concurrency in the caller; working directories, containers, and services are not inputs.
 

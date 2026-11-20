@@ -114,7 +114,7 @@ jobs:
           SETUP_SCRIPT: ${{ inputs.before-bundle }}
         run: bash -eo pipefail -c "$SETUP_SCRIPT"
       - name: Set Up Ruby
-        uses: ruby/setup-ruby@20eb24b0d509e2b9ed9b6d42ddfeb992915e0564
+        uses: ruby/setup-ruby@v1 # Floating so new Ruby releases work without a parallel_tests-ci release.
         with:
           ruby-version: ${{ inputs.ruby-version || 'default' }}
           bundler-cache: ${{ inputs.bundler-cache }}
@@ -177,7 +177,7 @@ jobs:
           SETUP_SCRIPT: ${{ inputs.before-bundle }}
         run: bash -eo pipefail -c "$SETUP_SCRIPT"
       - name: Set Up Ruby
-        uses: ruby/setup-ruby@20eb24b0d509e2b9ed9b6d42ddfeb992915e0564
+        uses: ruby/setup-ruby@v1 # Floating so new Ruby releases work without a parallel_tests-ci release.
         with:
           ruby-version: ${{ inputs.ruby-version || 'default' }}
           bundler-cache: ${{ inputs.bundler-cache }}
@@ -236,7 +236,7 @@ jobs:
           SETUP_SCRIPT: ${{ inputs.before-bundle }}
         run: bash -eo pipefail -c "$SETUP_SCRIPT"
       - name: Set Up Ruby
-        uses: ruby/setup-ruby@20eb24b0d509e2b9ed9b6d42ddfeb992915e0564
+        uses: ruby/setup-ruby@v1 # Floating so new Ruby releases work without a parallel_tests-ci release.
         with:
           ruby-version: ${{ inputs.ruby-version || 'default' }}
           bundler-cache: ${{ inputs.bundler-cache }}
