@@ -2,6 +2,7 @@
 
 ## 0.2.1 (Next)
 
+- [#51](https://github.com/dblock/parallel_tests-ci/pull/51): Use the floating `ruby/setup-ruby@v1` tag in the shared workflow so newly released Ruby versions work without a new release - [@dblock](https://github.com/dblock).
 - Your contribution here.
 
 ## 0.2.0 (2026/11/20)
