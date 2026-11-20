@@ -6,7 +6,7 @@ RSpec.describe ParallelTests::CI::Run, :aggregate_failures do
   let(:run) { described_class.prepare(directory: 'plan', pattern: 'spec/*.rb', shards: 2) }
   let(:observed) { File.expand_path('observed.txt') }
 
-  before { copy_suite }
+  before { copy_suite('rspec', 'spec') }
 
   def run_shards(prepared)
     prepared.matrix.each do |entry|

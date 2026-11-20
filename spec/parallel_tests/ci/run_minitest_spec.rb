@@ -6,7 +6,7 @@ RSpec.describe ParallelTests::CI::Run, :aggregate_failures do
   let(:observed) { File.expand_path('observed.txt') }
   let(:files) { %w[test/first_test.rb test/second_test.rb] }
 
-  before { FileUtils.cp_r(File.expand_path('../../fixtures/minitest', __dir__), 'test') }
+  before { copy_suite('minitest', 'test') }
 
   def run_suite(label, history: nil)
     prepared = described_class.prepare(directory: "plan-#{label}", framework: 'minitest', shards: 2, history: history)
