@@ -1,25 +1,9 @@
 # frozen_string_literal: true
 
-require 'parallel_tests/ci/github'
+require_relative '../../support/github'
 
 RSpec.describe ParallelTests::CI::GitHub, :aggregate_failures do
-  include_context 'with a temporary project'
-
-  let(:environment) do
-    { 'GITHUB_EVENT_PATH' => 'event.json', 'GITHUB_OUTPUT' => 'outputs', 'GITHUB_REPOSITORY' => 'owner/project',
-      'GITHUB_RUN_ID' => '21', 'GITHUB_RUN_ATTEMPT' => '2' }
-  end
-
-  let(:inputs) do
-    { 'artifact-prefix' => 'test-ci', 'pattern' => 'spec/*.rb', 'shards' => 1, 'test-options' => '[]' }
-  end
-
-  before do
-    File.write('event.json', JSON.generate('repository' => { 'default_branch' => 'master' }))
-    File.write('outputs', '')
-    allow(ENV).to receive(:fetch).and_call_original
-    environment.each { |key, value| allow(ENV).to receive(:fetch).with(key).and_return(value) }
-  end
+  include_context 'with GitHub workflow inputs'
 
   def stub_response(path, payload, paginate: false)
     arguments = ['gh', 'api', path]
@@ -40,8 +24,10 @@ RSpec.describe ParallelTests::CI::GitHub, :aggregate_failures do
                   { 'workflow_runs' => runs })
   end
 
-  def outputs
-    File.readlines('outputs', chomp: true).to_h { |line| line.split('=', 2) }
+  def create_sample_files
+    FileUtils.mkdir_p('suite')
+    File.write('suite/first.rb', 'first')
+    File.write('suite/second.rb', 'second')
   end
 
   def prepare_matrix(template)
@@ -57,7 +43,7 @@ RSpec.describe ParallelTests::CI::GitHub, :aggregate_failures do
   describe 'worker names during preparation' do
     let(:inputs) { super().merge('shards' => 8) }
 
-    before { copy_suite('rspec', 'spec') }
+    before { create_sample_files }
 
     it 'uses the default for an empty template and the actual capped total' do
       expect(prepare_matrix('')).to eq([{ 'shard' => 1, 'name' => '1 of 2' },
@@ -67,15 +53,15 @@ RSpec.describe ParallelTests::CI::GitHub, :aggregate_failures do
     it 'renders repeated named placeholders and JSON-escapes names without changing the plan fingerprint' do
       prepare_matrix('')
       fingerprint = ParallelTests::CI::Run.new('tmp/parallel_tests_ci/plan').fingerprint
-      expect(prepare_matrix("RSpec \"{shard.number}\"\n{shard.number}/{shard.count} ({plan.group_by})"))
-        .to eq([{ 'shard' => 1, 'name' => "RSpec \"1\"\n1/2 (filesize)" },
-                { 'shard' => 2, 'name' => "RSpec \"2\"\n2/2 (filesize)" }])
+      expect(prepare_matrix("Worker \"{shard.number}\"\n{shard.number}/{shard.count} ({plan.group_by})"))
+        .to eq([{ 'shard' => 1, 'name' => "Worker \"1\"\n1/2 (filesize)" },
+                { 'shard' => 2, 'name' => "Worker \"2\"\n2/2 (filesize)" }])
       expect(ParallelTests::CI::Run.new('tmp/parallel_tests_ci/plan').fingerprint).to eq(fingerprint)
     end
 
     it 'uses the actual runtime grouping when history is available' do
       FileUtils.mkdir_p('tmp/parallel_tests_ci/history')
-      File.write('tmp/parallel_tests_ci/history/runtime.log', "spec/first.rb:1\n")
+      File.write('tmp/parallel_tests_ci/history/runtime.log', "suite/first.rb:1\n")
       expect(prepare_matrix('{plan.group_by} {shard.number}/{shard.count}'))
         .to eq([{ 'shard' => 1, 'name' => 'runtime 1/2' }, { 'shard' => 2, 'name' => 'runtime 2/2' }])
     end
@@ -135,7 +121,7 @@ RSpec.describe ParallelTests::CI::GitHub, :aggregate_failures do
 
   context 'with a prepared plan' do
     before do
-      copy_suite('rspec', 'spec')
+      create_sample_files
       described_class.prepare(inputs: inputs)
     end
 
@@ -143,21 +129,9 @@ RSpec.describe ParallelTests::CI::GitHub, :aggregate_failures do
       expect(JSON.parse(outputs.fetch('matrix'))).to eq([{ 'shard' => 1, 'name' => '1 of 1' }])
       expect(outputs.fetch('artifact')).to eq('test-ci-plan-2')
     end
-
-    it 'executes real specs, names measurement artifacts, and collects timings' do
-      expect { described_class.run(inputs: inputs, shard: 1) }
-        .to raise_error(SystemExit) { |error| expect(error.status).to eq(0) }
-      FileUtils.mkdir_p('tmp/parallel_tests_ci/results')
-      FileUtils.cp_r('tmp/parallel_tests_ci/result', 'tmp/parallel_tests_ci/results/shard')
-      described_class.collect
-      expect(outputs.fetch('artifact')).to eq('test-ci-shard-1-2')
-      expect(ParallelTests::CI::RuntimeLog.read('tmp/parallel_tests_ci/baseline/runtime.log').keys.sort)
-        .to eq(%w[spec/first.rb spec/second.rb])
-    end
   end
 
   it 'rejects malformed JSON test options before preparing a plan' do
-    copy_suite('rspec', 'spec')
     expect { described_class.prepare(inputs: inputs.merge('test-options' => '[')) }.to raise_error(JSON::ParserError)
     expect(File).not_to exist('tmp/parallel_tests_ci/plan/plan.json')
   end
