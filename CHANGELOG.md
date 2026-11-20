@@ -23,6 +23,7 @@
 - [#45](https://github.com/dblock/parallel_tests-ci/pull/45): Separate GitHub workflow specs and exercise both framework runners - [@dblock](https://github.com/dblock).
 - [#46](https://github.com/dblock/parallel_tests-ci/pull/46): Organize framework-specific specs and fixtures around shared runner contracts - [@dblock](https://github.com/dblock).
 - [#47](https://github.com/dblock/parallel_tests-ci/pull/47): Support Minitest in the standalone shard matrix action and align framework defaults and plans - [@dblock](https://github.com/dblock).
+- [#48](https://github.com/dblock/parallel_tests-ci/pull/48): Pass standalone action inputs to Ruby as JSON and fix the upgrade heading - [@dblock](https://github.com/dblock).
 - Your contribution here.
 
 ## 0.1.0 (2026/11/19)

@@ -34,9 +34,5 @@ runs:
       shell: bash
       env:
         PTCI_ACTION_PATH: ${{ github.action_path }}
-        PTCI_FRAMEWORK: ${{ inputs.framework }}
-        PTCI_PATTERN: ${{ inputs.pattern }}
-        PTCI_SHARDS: ${{ inputs.shards }}
-        PTCI_GROUP_BY: ${{ inputs.group-by }}
-        PTCI_RUNTIME_LOG: ${{ inputs.runtime-log }}
+        PTCI_INPUTS: ${{ toJSON(inputs) }}
       run: bundle exec ruby "$PTCI_ACTION_PATH/script/shard_matrix.rb"
