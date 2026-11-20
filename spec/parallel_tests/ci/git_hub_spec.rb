@@ -57,7 +57,7 @@ RSpec.describe ParallelTests::CI::GitHub, :aggregate_failures do
   describe 'worker names during preparation' do
     let(:inputs) { super().merge('shards' => 8) }
 
-    before { copy_rspec_suite }
+    before { copy_suite }
 
     it 'uses the default for an empty template and the actual capped total' do
       expect(prepare_matrix('')).to eq([{ 'shard' => 1, 'name' => '1 of 2' },
@@ -135,7 +135,7 @@ RSpec.describe ParallelTests::CI::GitHub, :aggregate_failures do
 
   context 'with a prepared plan' do
     before do
-      copy_rspec_suite
+      copy_suite
       described_class.prepare(inputs: inputs)
     end
 
@@ -157,7 +157,7 @@ RSpec.describe ParallelTests::CI::GitHub, :aggregate_failures do
   end
 
   it 'rejects malformed JSON test options before preparing a plan' do
-    copy_rspec_suite
+    copy_suite
     expect { described_class.prepare(inputs: inputs.merge('test-options' => '[')) }.to raise_error(JSON::ParserError)
     expect(File).not_to exist('tmp/parallel_tests_ci/plan/plan.json')
   end
