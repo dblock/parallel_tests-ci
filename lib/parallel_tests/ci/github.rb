@@ -34,7 +34,12 @@ module ParallelTests
         JSON.parse(output)
       end
 
-      def find_history(inputs:)
+      # Workflow steps call these entry points without arguments, so the command parses the same in every shell.
+      def inputs
+        JSON.parse(ENV.fetch('PTCI_INPUTS'))
+      end
+
+      def find_history(inputs: self.inputs)
         repository = ENV.fetch('GITHUB_REPOSITORY')
         artifact_prefix = prefix(inputs.fetch('artifact-prefix'))
         successful_runs(repository).each do |run|
@@ -69,7 +74,7 @@ module ParallelTests
           run.dig('head_repository', 'full_name') == repository
       end
 
-      def prepare(inputs:)
+      def prepare(inputs: self.inputs)
         run = Run.prepare(directory: "#{DIRECTORY}/plan", history: "#{DIRECTORY}/history/runtime.log",
                           **plan_settings(inputs))
         outputs(matrix: JSON.generate(worker_matrix(run, inputs: inputs)),
@@ -101,7 +106,7 @@ module ParallelTests
         end
       end
 
-      def run(inputs:, shard:)
+      def run(inputs: self.inputs, shard: ENV.fetch('PTCI_SHARD'))
         attempt = ENV.fetch('GITHUB_RUN_ATTEMPT')
         code = Run.new("#{DIRECTORY}/plan").run(shard: shard, attempt: attempt, directory: "#{DIRECTORY}/result")
         outputs(artifact: "#{prefix(inputs.fetch('artifact-prefix'))}-shard-#{shard}-#{attempt}") if code.zero?

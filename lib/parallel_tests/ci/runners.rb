@@ -17,8 +17,13 @@ module ParallelTests
 
       # Runs one group using the shared parallel_tests command and process handling.
       class Base
+        # Windows process command-line limit, counting the quotes and separator Ruby adds around each argument.
+        WINDOWS_COMMAND_LIMIT = 32_767
+
         def run(flags, files:, options:, output:, env:)
-          pid = Process.spawn(env.merge(timing_environment(output)), *command(flags, files, options, output))
+          arguments = command(flags, files, options, output)
+          check_windows_length(arguments, files.size) if Gem.win_platform?
+          pid = Process.spawn(env.merge(timing_environment(output)), *arguments)
           _pid, status = Process.wait2(pid)
           status.exitstatus || (128 + status.termsig)
         end
@@ -28,6 +33,14 @@ module ParallelTests
         end
 
         private
+
+        def check_windows_length(arguments, count)
+          length = arguments.sum { |argument| argument.length + 3 }
+          return if length <= WINDOWS_COMMAND_LIMIT
+
+          raise ArgumentError, "The parallel_tests command for #{count} files is #{length} characters, over the " \
+                               "Windows limit of #{WINDOWS_COMMAND_LIMIT}; select fewer or shorter paths"
+        end
 
         def command(flags, files, options, output)
           [RbConfig.ruby, Gem.bin_path('parallel_tests', executable), *flags,

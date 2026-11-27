@@ -8,11 +8,22 @@ on:
 permissions:
   contents: read
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   plan_standalone:
-    name: Plan With Standalone Minitest Action
-    runs-on: ubuntu-latest
+    name: Plan With Standalone Minitest Action on ${{ matrix.entry.os }}
+    runs-on: ${{ matrix.entry.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        entry:
+          - { os: ubuntu-latest }
+          - { os: windows-latest }
     outputs:
+      # Every runner checks its own plan; the identical matrices make either output valid for execution.
       matrix: ${{ steps.plan.outputs.matrix }}
     steps:
       - name: Check Out Code

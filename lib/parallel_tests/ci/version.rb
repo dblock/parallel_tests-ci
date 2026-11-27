@@ -3,6 +3,6 @@
 module ParallelTests
   # GitHub Actions integration for parallel_tests.
   module CI
-    VERSION = '0.2.2'
+    VERSION = '0.3.0'
   end
 end

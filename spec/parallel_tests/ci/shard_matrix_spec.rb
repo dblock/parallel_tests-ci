@@ -61,10 +61,12 @@ RSpec.describe 'Standalone shard matrix', :aggregate_failures do # rubocop:disab
   end
 
   it 'preserves spaces and quotes in an explicit pattern' do
-    File.write('test/quoted "file"_test.rb', 'test')
-    _stdout, stderr, status = plan('framework' => 'minitest', 'pattern' => 'test/quoted "file"_test.rb')
+    # Windows file names cannot contain double quotes.
+    path = Gem.win_platform? ? "test/quoted 'file'_test.rb" : 'test/quoted "file"_test.rb'
+    File.write(path, 'test')
+    _stdout, stderr, status = plan('framework' => 'minitest', 'pattern' => path)
     expect(status.success?).to be(true), stderr
-    expect(assigned_files).to eq(['test/quoted "file"_test.rb'])
+    expect(assigned_files).to eq([path])
   end
 
   it 'rejects malformed JSON inputs without writing outputs' do
