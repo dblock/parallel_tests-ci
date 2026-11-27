@@ -28,11 +28,11 @@ on:
         type: number
         default: 1
       ruby-version:
-        description: Ruby version (empty uses the caller's version file).
+        description: Ruby version (empty uses the caller's version file; system uses the runner's Ruby without ruby/setup-ruby).
         type: string
         default: ''
       bundler-cache:
-        description: Cache installed gems in every job (false still runs bundle install).
+        description: Cache installed gems in every job (false or system Ruby runs bundle install).
         type: boolean
         default: true
       shards:
@@ -121,13 +121,14 @@ jobs:
         run: bash -eo pipefail -c "$SETUP_SCRIPT"
       - &setup-ruby
         name: Set Up Ruby
+        if: inputs.ruby-version != 'system'
         uses: ruby/setup-ruby@v1 # Floating so new Ruby releases work without a parallel_tests-ci release.
         with:
           ruby-version: ${{ inputs.ruby-version || 'default' }}
           bundler-cache: ${{ inputs.bundler-cache }}
       - &install-gems
         name: Install Gems Without Cache
-        if: ${{ !inputs.bundler-cache }}
+        if: ${{ !inputs.bundler-cache || inputs.ruby-version == 'system' }}
         run: bundle install
       - name: Find Trusted History
         if: inputs.group-by == 'auto' || inputs.group-by == 'runtime'

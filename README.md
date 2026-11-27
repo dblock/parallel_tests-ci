@@ -85,8 +85,8 @@ These inputs configure the reusable workflows.
 | `max-parallel`    | `256`           | Concurrent worker limit (1-256).                    |
 | `fail-fast`       | `false`         | Cancel remaining workers on failure.                |
 | `fetch-depth`     | `1`             | Checkout depth; `0` gets all history and tags.      |
-| `ruby-version`    | Empty           | Override the caller's Ruby version.                 |
-| `bundler-cache`   | `true`          | Cache gems; `false` still installs them.            |
+| `ruby-version`    | Empty           | Override Ruby; `system` uses the runner's Ruby.     |
+| `bundler-cache`   | `true`          | Cache gems; `false` or `system` installs uncached.  |
 
 ### Suite and Setup
 
