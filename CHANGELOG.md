@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.3.0 (Next)
+## 0.3.0 (2026/11/27)
 
 - [#52](https://github.com/dblock/parallel_tests-ci/pull/52): Define the shared workflow's repeated setup steps once with YAML anchors - [@dblock](https://github.com/dblock).
 - [#53](https://github.com/dblock/parallel_tests-ci/pull/53): Support Windows runners in the reusable workflows and standalone action - [@dblock](https://github.com/dblock).
@@ -8,7 +8,6 @@
 - [#57](https://github.com/dblock/parallel_tests-ci/pull/57): Add `ruby-version: system` to use the runner's Ruby without `ruby/setup-ruby` - [@dblock](https://github.com/dblock).
 - [#58](https://github.com/dblock/parallel_tests-ci/pull/58): Run `before-bundle` and `setup` with the runner's default shell, PowerShell on Windows - [@dblock](https://github.com/dblock).
 - [#60](https://github.com/dblock/parallel_tests-ci/pull/60): Skip the Collect Timings job except on default-branch pushes, the only runs that publish timings - [@dblock](https://github.com/dblock).
-- Your contribution here.
 
 ## 0.2.1 (2026/11/20)
 
