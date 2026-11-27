@@ -20,11 +20,11 @@ Set up Ruby and install `parallel_tests` in the caller's bundle before invoking 
 
 ## Workflow
 
-| Job     | Behavior                                                         |
-| ---     | ---                                                              |
-| Prepare | Find a timing baseline and emit the `matrix.entry` plan.         |
-| Test    | Run each planned shard and mark it successful only if it passes. |
-| Collect | Validate and combine all shards' timings into a baseline.        |
+| Job     | Behavior                                                                                                       |
+| ---     | ---                                                                                                            |
+| Prepare | Find a timing baseline and emit the `matrix.entry` plan.                                                       |
+| Test    | Run each planned shard and mark it successful only if it passes.                                               |
+| Collect | On default-branch pushes, validate and combine all shards' timings and publish a baseline; other runs skip it. |
 
 Unless `group-by` is `filesize`, Prepare looks for a retained baseline among the caller workflow's latest 20 successful default-branch pushes. It rejects empty selections, caps the requested 1-256 shards at the file count, and writes the matrix to `$GITHUB_OUTPUT`. Runtime grouping drops stale paths and requires timings for at least half the selected files; upstream estimates unknown durations. If there are insufficient timings, `auto` falls back to file sizes and `runtime` fails. Per-file history survives worker-count changes.
 
