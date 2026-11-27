@@ -4,7 +4,7 @@ Read [Contributing](CONTRIBUTING.md) for validation, CI, and PR rules, [Design](
 
 ## Scope and Layout
 
-Runtime: `lib/parallel_tests/ci/`. Specs, synthetic suites, and installed-consumer checks: `spec/parallel_tests/ci/`. Workflows: `.github/workflows/`. Support Ruby 3.3+; use `.ruby-version` for development.
+Runtime: `lib/parallel_tests/ci/`. Specs, synthetic suites, and installed-consumer checks: `spec/parallel_tests/ci/`. Workflows: `.github/workflows/`. Support Ruby 3.3+; use `.ruby-version` for development. `shards.yml` defines each setup step shared by its jobs once, as a YAML anchor (`&checkout`, `&setup-ruby`, and so on), and reuses it with aliases; edit the anchored definition, and keep `YAML.safe_load` callers passing `aliases: true`.
 
 Use the documented `parallel_tests` API for partitioning, timing, and unknown-runtime estimation for RSpec and Minitest. Do not add a scheduler, patch dependencies, parse console output as an API, or introduce other providers or a public CLI.
 
