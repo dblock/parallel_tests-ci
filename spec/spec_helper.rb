@@ -8,7 +8,8 @@ require 'tmpdir'
 
 RSpec.shared_context 'with a temporary project' do
   around do |example|
-    Dir.mktmpdir('parallel-tests-ci-spec') { |directory| Dir.chdir(directory) { example.run } }
+    # Resolve Windows 8.3 short names so upstream loggers can strip the working directory from test paths.
+    Dir.mktmpdir('parallel-tests-ci-spec') { |directory| Dir.chdir(File.realpath(directory)) { example.run } }
   end
 
   def copy_suite(fixture, destination)

@@ -4,7 +4,7 @@ on:
   workflow_call:
     inputs:
       runs-on:
-        description: Runner label or JSON array of labels for every job (Linux or macOS).
+        description: Runner label or JSON array of labels for every job (Linux, macOS, or Windows).
         type: string
         default: ubuntu-latest
       timeout-minutes:

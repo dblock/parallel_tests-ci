@@ -12,7 +12,7 @@ Each runner defines its default file glob, test command, and timing output. The 
 
 ## Standalone Shard Matrix Action
 
-The [standalone action](README.md#standalone-shard-matrix-action) uses the same file discovery, timing validation, and upstream partitioner as the reusable workflow. `framework` selects `rspec` (the default) or `minitest`; an empty `pattern` uses the selected framework's default glob. Composite action input values are strings and are passed to Ruby together as JSON. It does not create jobs, run tests, or manage timing artifacts.
+The [standalone action](README.md#standalone-shard-matrix-action) uses the same file discovery, timing validation, and upstream partitioner as the reusable workflow. `framework` selects `rspec` (the default) or `minitest`; an empty `pattern` uses the selected framework's default glob. Composite action input values are strings and are passed to Ruby together as JSON. The action runs its step in Bash and works on Linux, macOS, and Windows runners. It does not create jobs, run tests, or manage timing artifacts.
 
 Set up Ruby and install `parallel_tests` in the caller's bundle before invoking the action. The optional `runtime-log` input points to a local timing log; an empty value supplies no history. `group-by` accepts `auto` (the default), `filesize`, or `runtime`, with the same coverage requirements as the reusable workflows.
 
@@ -50,7 +50,11 @@ See [Configuration](README.md#configuration) for every input and default. Keep g
 
 ### Runners and Execution
 
-All jobs use `runs-on`: a label such as `macos-latest` or JSON labels such as `'["self-hosted","linux","x64"]'`. Linux and macOS are supported, not Windows. Custom runners need Bash, Git, the GitHub CLI, and compatibility with the pinned actions and `ruby/setup-ruby@v1`.
+All jobs use `runs-on`: a label such as `macos-latest` or `windows-latest`, or JSON labels such as `'["self-hosted","linux","x64"]'`. Linux, macOS, and Windows are supported. Custom runners need Bash, Git, the GitHub CLI, and compatibility with the pinned actions and `ruby/setup-ruby@v1`.
+
+Every step is the same on every operating system; there are no per-OS step variants. Steps run in Bash, which GitHub's Windows runners provide as Git Bash, so caller scripts keep one syntax; Windows-native commands can still be called from them, for example through `pwsh -Command`. Ruby steps call argument-free internal entry points, such as `ruby -rparallel_tests/ci/github -e ParallelTests::CI::GitHub.prepare`, which read `PTCI_INPUTS`, `PTCI_SHARD`, and the GitHub environment themselves, so no quoting reaches Ruby or Bundler batch shims.
+
+Workers pass every planned file to `parallel_tests`, which selects the shard's group. On Windows, a worker fails before spawning when that command exceeds the 32,767-character process command-line limit; select fewer files or use shorter paths. The test runners spawn argument arrays, so the 8,192-character `cmd.exe` limit does not apply. Upstream's Minitest logger strips the working directory from test paths, which requires the working directory to use long Windows paths rather than 8.3 short names; GitHub workspaces do. Checkouts may convert line endings, which changes file sizes but not the files selected. Test and timing paths are repository-relative with `/` separators; absolute, drive-prefixed, and backslash paths are rejected on every operating system.
 
 Job timeouts include setup and remain subject to runner limits. `max-parallel` limits concurrent workers, not total shards. `fail-fast` cannot publish an incomplete baseline. Configure workflow concurrency in the caller; working directories, containers, and services are not inputs.
 
@@ -72,7 +76,7 @@ An empty `worker-name` uses the default. Braces are reserved: unknown, empty, ne
 
 Run native dependency setup in `before-bundle` before Ruby/gems in all jobs. `setup` runs after gems in workers only; provision application services there. Do not add, remove, or resize selected specs. Keep secrets out of test arguments and uploaded files.
 
-`PTCI_INPUTS` carries `toJSON(inputs)`, parsed once per Ruby entry point and passed explicitly thereafter. Numeric types survive; JSON-string inputs are decoded separately. GitHub metadata/authentication and `PTCI_SHARD` stay separate. Ruby never logs or persists the entire input object.
+`PTCI_INPUTS` carries `toJSON(inputs)`, parsed once per Ruby entry point and passed explicitly thereafter; workflow steps call the entry points without arguments. Numeric types survive; JSON-string inputs are decoded separately. GitHub metadata/authentication and `PTCI_SHARD` stay separate. Ruby never logs or persists the entire input object.
 
 ## Trust
 

@@ -72,7 +72,7 @@ If you manage your own CI jobs, use [the standalone action](DESIGN.md#standalone
 
 ## Configuration
 
-The workflow uses Ruby from your version file and defaults to Ubuntu. The first run groups tests by file size. Successful pushes on the default branch record timings for later runs, and PRs read them without updating history.
+The workflow uses Ruby from your version file and defaults to Ubuntu; set `runs-on` to use macOS or Windows runners. The first run groups tests by file size. Successful pushes on the default branch record timings for later runs, and PRs read them without updating history.
 
 These inputs configure the reusable workflows.
 
@@ -100,7 +100,7 @@ These inputs configure the reusable workflows.
 | `before-bundle` | Empty                                                       | Shell setup before gem install in all jobs. |
 | `setup`         | Empty                                                       | Shell setup before tests in each worker.    |
 
-Use arguments supported by the selected framework, for example `test-options: '["--seed","123"]'`.
+Use arguments supported by the selected framework, for example `test-options: '["--seed","123"]'`. The `before-bundle` and `setup` scripts run in Bash on every runner, including Git Bash on Windows, so one script works on Linux, macOS, and Windows.
 
 ### Shard Grouping
 

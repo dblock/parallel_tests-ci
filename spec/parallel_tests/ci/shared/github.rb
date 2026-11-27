@@ -38,9 +38,14 @@ RSpec.shared_examples 'GitHub shard execution' do
     original.nil? ? ENV.delete('PTCI_OBSERVED') : ENV['PTCI_OBSERVED'] = original
   end
 
-  it 'executes assigned files, names measurement artifacts, and collects timings', :aggregate_failures do
-    described_class.prepare(inputs: inputs)
-    expect { described_class.run(inputs: inputs, shard: 1) }
+  before do
+    allow(ENV).to receive(:fetch).with('PTCI_INPUTS').and_return(JSON.generate(inputs))
+    allow(ENV).to receive(:fetch).with('PTCI_SHARD').and_return('1')
+  end
+
+  it 'executes assigned files from the step environment, names artifacts, and collects timings', :aggregate_failures do
+    described_class.prepare
+    expect { described_class.run }
       .to raise_error(SystemExit) { |error| expect(error.status).to eq(0) }
     FileUtils.mkdir_p('tmp/parallel_tests_ci/results')
     FileUtils.cp_r('tmp/parallel_tests_ci/result', 'tmp/parallel_tests_ci/results/shard')

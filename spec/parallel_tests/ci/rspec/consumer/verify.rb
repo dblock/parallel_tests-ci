@@ -11,8 +11,7 @@ Consumer.in_temporary_directory do
              'worker-name' => 'Installed "{shard.number}"/{shard.count} ({plan.group_by})' }
   environment = { 'GITHUB_OUTPUT' => 'outputs', 'GITHUB_RUN_ATTEMPT' => '1', 'PTCI_INPUTS' => JSON.generate(inputs) }
   File.write('outputs', '')
-  unless system(environment, Gem.ruby, '-rparallel_tests/ci/github', '-e',
-                'ParallelTests::CI::GitHub.prepare(inputs: JSON.parse(ENV.fetch("PTCI_INPUTS")))')
+  unless system(environment, Gem.ruby, '-rparallel_tests/ci/github', '-e', 'ParallelTests::CI::GitHub.prepare')
     abort 'Installed package could not prepare JSON workflow inputs'
   end
   matrix = JSON.parse(File.readlines('outputs').find { |line| line.start_with?('matrix=') }.delete_prefix('matrix='))

@@ -19,6 +19,7 @@ jobs:
           - { ruby: '3.3', os: ubuntu-latest }
           - { ruby: '4.0', os: ubuntu-latest }
           - { ruby: '4.0', os: macos-latest }
+          - { ruby: '4.0', os: windows-latest }
     steps:
       - name: Check Out Code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

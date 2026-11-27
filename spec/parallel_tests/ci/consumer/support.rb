@@ -14,6 +14,6 @@ module Consumer
   end
 
   def self.in_temporary_directory(&block)
-    Dir.mktmpdir('parallel-tests-ci-installed') { |directory| Dir.chdir(directory, &block) }
+    Dir.mktmpdir('parallel-tests-ci-installed') { |directory| Dir.chdir(File.realpath(directory), &block) }
   end
 end

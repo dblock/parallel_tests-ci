@@ -86,6 +86,7 @@ txt
 uncached
 untrusted
 workflow_call
+workspaces
 worktree
 worktrees
 yaml
