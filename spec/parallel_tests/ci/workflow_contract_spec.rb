@@ -18,6 +18,15 @@ RSpec.describe 'Framework workflow contract' do # rubocop:disable RSpec/Describe
 
   let(:shared_call) { workflow_call(workflow('shards')) }
 
+  it 'collects and publishes timings only on default-branch pushes', :aggregate_failures do
+    collect = workflow('shards').fetch('jobs').fetch('collect')
+    publish = collect.fetch('steps').find { |step| step['name'] == 'Publish Trusted Baseline' }
+
+    expect(collect.fetch('if')).to eq("github.event_name == 'push' && " \
+                                      "github.ref == format('refs/heads/{0}', github.event.repository.default_branch)")
+    expect(publish).not_to have_key('if')
+  end
+
   {
     'rspec' => { 'pattern' => 'spec/**/*_spec.rb', 'artifact-prefix' => 'parallel-tests-ci' },
     'minitest' => { 'pattern' => 'test/**/*_test.rb', 'artifact-prefix' => 'parallel-tests-ci' }
