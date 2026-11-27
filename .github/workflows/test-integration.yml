@@ -34,6 +34,24 @@ jobs:
       worker-name: 'Minitest {shard.number}/{shard.count} ({plan.group_by})'
       environment: '{"PTCI_OBSERVED":"tmp/parallel_tests_ci/observed.txt"}'
 
+  system_ruby:
+    name: Exercise System Ruby
+    uses: ./.github/workflows/minitest.yml
+    with:
+      ruby-version: system
+      shards: 2
+      pattern: spec/parallel_tests/ci/minitest/suite/*_test.rb
+      artifact-prefix: integration-system-ruby
+      artifact-retention-days: 1
+      baseline-retention-days: 1
+      environment: '{"PTCI_OBSERVED":"tmp/parallel_tests_ci/observed.txt"}'
+      # Simulates a custom image that provides Ruby: puts the newest tool-cache Ruby on PATH without ruby/setup-ruby.
+      before-bundle: |
+        ruby_bin="$(ls -d /opt/hostedtoolcache/Ruby/*/x64 | sort -V | tail -n 1)/bin"
+        echo "$ruby_bin" >> "$GITHUB_PATH"
+        test "$("$ruby_bin/ruby" -e 'print Gem::Version.new(RUBY_VERSION) >= Gem::Version.new("3.3")')" = true
+      setup: case "$(command -v ruby)" in /opt/hostedtoolcache/Ruby/*) ;; *) exit 1 ;; esac
+
   integration_configuration:
     name: Exercise Configuration (${{ matrix.entry.framework }}, ${{ matrix.entry.os }})
     strategy:

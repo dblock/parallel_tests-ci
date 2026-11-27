@@ -24,11 +24,11 @@ on:
         type: number
         default: 1
       ruby-version:
-        description: Ruby version (empty uses the caller's version file).
+        description: Ruby version (empty uses the caller's version file; system uses the runner's Ruby without ruby/setup-ruby).
         type: string
         default: ''
       bundler-cache:
-        description: Cache installed gems in every job (false still runs bundle install).
+        description: Cache installed gems in every job (false or system Ruby runs bundle install).
         type: boolean
         default: true
       shards:
