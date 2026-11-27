@@ -50,7 +50,7 @@ See [Configuration](README.md#configuration) for every input and default. Keep g
 
 ### Runners and Execution
 
-All jobs use `runs-on`: a label such as `macos-latest` or `windows-latest`, or JSON labels such as `'["self-hosted","linux","x64"]'`. Linux, macOS, and Windows are supported. Custom runners need Bash, Git, the GitHub CLI, and compatibility with the pinned actions and `ruby/setup-ruby@v1`.
+All jobs use `runs-on`: a label such as `macos-latest` or `windows-latest`, JSON labels such as `'["self-hosted","linux","x64"]'`, or a JSON runner group object such as `'{"group":"ci-runners","labels":["linux"]}'`. Values starting with `[` or `{` are parsed as JSON. Linux, macOS, and Windows are supported. Custom runners need Bash, Git, the GitHub CLI, and compatibility with the pinned actions and `ruby/setup-ruby@v1`.
 
 Every step is the same on every operating system; there are no per-OS step variants. Steps run in Bash, which GitHub's Windows runners provide as Git Bash, so caller scripts keep one syntax; Windows-native commands can still be called from them, for example through `pwsh -Command`. Ruby steps call argument-free internal entry points, such as `ruby -rparallel_tests/ci/github -e ParallelTests::CI::GitHub.prepare`, which read `PTCI_INPUTS`, `PTCI_SHARD`, and the GitHub environment themselves, so no quoting reaches Ruby or Bundler batch shims.
 

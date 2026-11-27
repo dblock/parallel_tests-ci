@@ -80,7 +80,7 @@ These inputs configure the reusable workflows.
 
 | Input             | Default         | Purpose                                             |
 | ---               | ---             | ---                                                 |
-| `runs-on`         | `ubuntu-latest` | Runner label or JSON label array for all jobs.      |
+| `runs-on`         | `ubuntu-latest` | Runner label, JSON label array, or group object.    |
 | `timeout-minutes` | `360`           | Minutes per job, including setup; positive integer. |
 | `max-parallel`    | `256`           | Concurrent worker limit (1-256).                    |
 | `fail-fast`       | `false`         | Cancel remaining workers on failure.                |

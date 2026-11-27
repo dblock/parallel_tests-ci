@@ -40,7 +40,7 @@ jobs:
       fail-fast: false
       matrix:
         entry:
-          - { framework: rspec, pattern: 'spec/parallel_tests/ci/rspec/suite/*.rb', runner: '["ubuntu-latest"]', os: Linux, cache: false }
+          - { framework: rspec, pattern: 'spec/parallel_tests/ci/rspec/suite/*.rb', runner: '{"labels":["ubuntu-latest"]}', os: Linux, cache: false }
           - { framework: rspec, pattern: 'spec/parallel_tests/ci/rspec/suite/*.rb', runner: macos-latest, os: macOS, cache: true }
           - { framework: rspec, pattern: 'spec/parallel_tests/ci/rspec/suite/*.rb', runner: windows-latest, os: Windows, cache: false }
           - { framework: minitest, pattern: 'spec/parallel_tests/ci/minitest/suite/*_test.rb', runner: '["ubuntu-latest"]', os: Linux, cache: false }
