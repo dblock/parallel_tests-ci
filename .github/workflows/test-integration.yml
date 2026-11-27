@@ -81,6 +81,7 @@ jobs:
       artifact-retention-days: 1
       baseline-retention-days: 1
       environment: ${{ format('{{"PTCI_OBSERVED":"tmp/parallel_tests_ci/observed.txt","PTCI_EXPECTED_OS":"{0}"}}', matrix.entry.os) }}
-      before-bundle: test "$(git rev-parse --is-shallow-repository)" = false
-      setup: test "$RUNNER_OS" = "$PTCI_EXPECTED_OS"
+      # Caller scripts run with the runner's default shell, so the Windows scripts are PowerShell.
+      before-bundle: ${{ matrix.entry.os == 'Windows' && 'if ((git rev-parse --is-shallow-repository) -ne "false") { exit 1 }' || 'test "$(git rev-parse --is-shallow-repository)" = false' }}
+      setup: ${{ matrix.entry.os == 'Windows' && 'if ($PSVersionTable.PSEdition -ne "Core" -or $env:RUNNER_OS -ne $env:PTCI_EXPECTED_OS) { exit 1 }' || 'test "$RUNNER_OS" = "$PTCI_EXPECTED_OS"' }}
       artifacts: tmp/parallel_tests_ci/observed.txt

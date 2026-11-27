@@ -60,11 +60,11 @@ on:
         type: string
         default: '{}'
       before-bundle:
-        description: Shell setup before installing Ruby/gems in every job.
+        description: Shell setup before installing Ruby/gems in every job (Bash, or PowerShell on Windows).
         type: string
         default: ''
       setup:
-        description: Shell setup after installing gems in each test shard.
+        description: Shell setup after installing gems in each test shard (Bash, or PowerShell on Windows).
         type: string
         default: ''
       artifacts:
@@ -94,10 +94,6 @@ permissions:
 
 env: ${{ fromJSON(secrets.environment || inputs.environment) }}
 
-defaults:
-  run:
-    shell: bash
-
 jobs:
   prepare:
     name: Prepare Shards
@@ -116,9 +112,8 @@ jobs:
       - &prepare-system
         name: Prepare System
         if: inputs.before-bundle != ''
-        env:
-          SETUP_SCRIPT: ${{ inputs.before-bundle }}
-        run: bash -eo pipefail -c "$SETUP_SCRIPT"
+        # The caller's script, run with the runner's default shell: Bash, or PowerShell on Windows.
+        run: ${{ inputs.before-bundle }}
       - &setup-ruby
         name: Set Up Ruby
         if: inputs.ruby-version != 'system'
@@ -129,6 +124,7 @@ jobs:
       - &install-gems
         name: Install Gems Without Cache
         if: ${{ !inputs.bundler-cache || inputs.ruby-version == 'system' }}
+        shell: bash
         run: bundle install
       - name: Find Trusted History
         if: inputs.group-by == 'auto' || inputs.group-by == 'runtime'
@@ -136,6 +132,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           PTCI_INPUTS: ${{ toJSON(inputs) }}
+        shell: bash
         run: bundle exec ruby -rparallel_tests/ci/github -e ParallelTests::CI::GitHub.find_history
       - name: Restore History
         if: steps.history.outputs.history_artifact != ''
@@ -151,6 +148,7 @@ jobs:
         id: plan
         env:
           PTCI_INPUTS: ${{ toJSON(inputs) }}
+        shell: bash
         run: bundle exec ruby -rparallel_tests/ci/github -e ParallelTests::CI::GitHub.prepare
       - name: Share Immutable Plan
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -183,14 +181,14 @@ jobs:
           path: tmp/parallel_tests_ci/plan
       - name: Set Up Application
         if: inputs.setup != ''
-        env:
-          SETUP_SCRIPT: ${{ inputs.setup }}
-        run: bash -eo pipefail -c "$SETUP_SCRIPT"
+        # The caller's script, run with the runner's default shell: Bash, or PowerShell on Windows.
+        run: ${{ inputs.setup }}
       - name: ${{ inputs.framework == 'minitest' && 'Run Assigned Tests' || 'Run Assigned Specs' }}
         id: run
         env:
           PTCI_INPUTS: ${{ toJSON(inputs) }}
           PTCI_SHARD: ${{ matrix.entry.shard }}
+        shell: bash
         run: bundle exec ruby -rparallel_tests/ci/github -e ParallelTests::CI::GitHub.run
       - name: Upload Measurements
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -226,6 +224,7 @@ jobs:
           pattern: ${{ inputs.artifact-prefix }}-shard-*
           path: tmp/parallel_tests_ci/results
       - name: Validate and Combine Measurements
+        shell: bash
         run: bundle exec ruby -rparallel_tests/ci/github -e ParallelTests::CI::GitHub.collect
       - name: Publish Trusted Baseline
         if: github.event_name == 'push' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
