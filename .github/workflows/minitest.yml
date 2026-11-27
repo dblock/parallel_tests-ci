@@ -56,11 +56,11 @@ on:
         type: string
         default: '{}'
       before-bundle:
-        description: Shell setup before installing Ruby/gems in every job.
+        description: Shell setup before installing Ruby/gems in every job (Bash, or PowerShell on Windows).
         type: string
         default: ''
       setup:
-        description: Shell setup after installing gems in each test shard.
+        description: Shell setup after installing gems in each test shard (Bash, or PowerShell on Windows).
         type: string
         default: ''
       artifacts:

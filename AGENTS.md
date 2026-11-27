@@ -11,7 +11,7 @@ Use the documented `parallel_tests` API for partitioning, timing, and unknown-ru
 ## Runtime Invariants
 
 - Share one immutable plan/history snapshot; reject changed spec paths or sizes.
-- Keep workflow steps identical on Linux, macOS, and Windows: run them in Bash and put logic in argument-free Ruby entry points that read `PTCI_INPUTS`; never duplicate steps per OS or pass quoted code or JSON on the command line.
+- Keep workflow steps identical on Linux, macOS, and Windows: run the workflow's own steps with `shell: bash`, run caller scripts with the runner's default shell, and put logic in argument-free Ruby entry points that read `PTCI_INPUTS`; never duplicate steps per OS or pass quoted code or JSON on the command line.
 - Emit explicit `matrix.entry` objects, never matrix include/exclude or Cartesian axes.
 - Fall back centrally when history is unusable; never skip tests or fabricate durations.
 - Write success markers only after passing tests. Collect every shard's newest successful attempt for the same fingerprint; reject duplicate latest reports.

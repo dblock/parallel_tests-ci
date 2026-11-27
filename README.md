@@ -100,7 +100,7 @@ These inputs configure the reusable workflows.
 | `before-bundle` | Empty                                                       | Shell setup before gem install in all jobs. |
 | `setup`         | Empty                                                       | Shell setup before tests in each worker.    |
 
-Use arguments supported by the selected framework, for example `test-options: '["--seed","123"]'`. The `before-bundle` and `setup` scripts run in Bash on every runner, including Git Bash on Windows, so one script works on Linux, macOS, and Windows.
+Use arguments supported by the selected framework, for example `test-options: '["--seed","123"]'`. The `before-bundle` and `setup` scripts run with the runner's default shell: Bash on Linux and macOS, and PowerShell on Windows. To share one Bash script across operating systems, call `bash -c` from it, since Windows runners also provide Git Bash.
 
 ### Shard Grouping
 

@@ -21,6 +21,7 @@ PNG
 PR's
 PRs
 Postgres
+PowerShell
 Posebook
 README
 RSpec

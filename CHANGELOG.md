@@ -6,6 +6,7 @@
 - [#53](https://github.com/dblock/parallel_tests-ci/pull/53): Support Windows runners in the reusable workflows and standalone action - [@dblock](https://github.com/dblock).
 - [#56](https://github.com/dblock/parallel_tests-ci/pull/56): Accept JSON runner group objects in `runs-on` - [@dblock](https://github.com/dblock).
 - [#57](https://github.com/dblock/parallel_tests-ci/pull/57): Add `ruby-version: system` to use the runner's Ruby without `ruby/setup-ruby` - [@dblock](https://github.com/dblock).
+- [#58](https://github.com/dblock/parallel_tests-ci/pull/58): Run `before-bundle` and `setup` with the runner's default shell, PowerShell on Windows - [@dblock](https://github.com/dblock).
 - Your contribution here.
 
 ## 0.2.1 (2026/11/20)
