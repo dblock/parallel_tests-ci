@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.1 (Next)
+
+- Your contribution here.
+
 ## 0.3.0 (2026/11/27)
 
 - [#52](https://github.com/dblock/parallel_tests-ci/pull/52): Define the shared workflow's repeated setup steps once with YAML anchors - [@dblock](https://github.com/dblock).

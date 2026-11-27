@@ -15,7 +15,7 @@ Requires Ruby 3.3+ and either RSpec or Minitest 5.
 Add to your Gemfile and run `bundle install`:
 
 ```ruby
-gem 'parallel_tests-ci', '0.2.1', require: 'parallel_tests/ci/rspec'
+gem 'parallel_tests-ci', '0.3.0', require: 'parallel_tests/ci/rspec'
 ```
 
 RSpec matches `spec/**/*_spec.rb` by default and records timings automatically; no changes to `spec_helper.rb` are needed.
@@ -33,7 +33,7 @@ permissions:
 jobs:
   test:
     name: Test
-    uses: dblock/parallel_tests-ci/.github/workflows/rspec.yml@v0.2.1
+    uses: dblock/parallel_tests-ci/.github/workflows/rspec.yml@v0.3.0
     with:
       shards: 8
 ```
@@ -43,7 +43,7 @@ jobs:
 Add to your Gemfile and run `bundle install`:
 
 ```ruby
-gem 'parallel_tests-ci', '0.2.1', require: 'parallel_tests/ci/minitest'
+gem 'parallel_tests-ci', '0.3.0', require: 'parallel_tests/ci/minitest'
 ```
 
 Minitest matches `test/**/*_test.rb` by default. If your test boot does not call `Bundler.require`, add `require 'parallel_tests/ci/minitest'` to `test_helper.rb`. The timing hook only activates in shard workers.
@@ -61,14 +61,14 @@ permissions:
 jobs:
   test:
     name: Test
-    uses: dblock/parallel_tests-ci/.github/workflows/minitest.yml@v0.2.1
+    uses: dblock/parallel_tests-ci/.github/workflows/minitest.yml@v0.3.0
     with:
       shards: 8
 ```
 
 ### Standalone Shard Matrix Action
 
-If you manage your own CI jobs, use [the standalone action](DESIGN.md#standalone-shard-matrix-action) to plan RSpec or Minitest shards. It defaults to RSpec; set `framework: minitest` for Minitest. See the [RSpec](.github/workflows/test-standalone-rspec.yml) and [Minitest](.github/workflows/test-standalone-minitest.yml) examples, replacing `uses: ./` with `uses: dblock/parallel_tests-ci@v0.2.1`. Unlike the reusable workflows, the standalone action only assigns files to shards; your workflow runs the tests and manages timing history.
+If you manage your own CI jobs, use [the standalone action](DESIGN.md#standalone-shard-matrix-action) to plan RSpec or Minitest shards. It defaults to RSpec; set `framework: minitest` for Minitest. See the [RSpec](.github/workflows/test-standalone-rspec.yml) and [Minitest](.github/workflows/test-standalone-minitest.yml) examples, replacing `uses: ./` with `uses: dblock/parallel_tests-ci@v0.3.0`. Unlike the reusable workflows, the standalone action only assigns files to shards; your workflow runs the tests and manages timing history.
 
 ## Configuration
 
